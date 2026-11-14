@@ -1,17 +1,22 @@
 # Native Windows build: MSYS2 UCRT64 + PDCursesMod (wide/UTF-8).
-# vt is the default backend for both mintty (UCRT64) and Windows console.
+# VT is the only backend (mintty, Windows Terminal, and Console Host).
 # The Unix build remains in Makefile. Windows does not use ./configure.
 #
 # pacman -S --needed make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-binutils mingw-w64-ucrt-x86_64-pdcurses
 # make clean && make
 # make PROGRAM=rogue_original original
 # make wizard
+# make FILEDIR=saved-games  # Personal build: Saved Games/Rogue/3.6
 
 CC = gcc
 WINDRES ?= windres
 ICON_OBJ := windows/rogue-icon.win.o
 MINGW_PREFIX ?= /ucrt64
-PDC_BACKEND ?= vt
+# Do not silently accept the obsolete backend selector.
+# Windows builds use the PDCursesMod VT backend on every supported console.
+ifneq ($(origin PDC_BACKEND),undefined)
+$(error PDC_BACKEND is obsolete; Windows builds always use the VT backend)
+endif
 PROG ?= rogue
 
 # PROGRAM is an alternative name for PROG on the make command line.
@@ -24,24 +29,35 @@ endif
 endif
 DEFAULT_LANGUAGE ?= 0
 FILEDIR ?=
+
+# Windows only: resolve FILEDIR=saved-games to the current user's actual
+# Saved Games known folder, including redirected locations, then use /Rogue/3.6.
+# The absolute path is embedded at build time: never use for public binaries.
+# Do not invoke PowerShell for clean, distclean, or source archive creation.
+ifeq ($(strip $(FILEDIR)),saved-games)
+ifneq ($(filter-out clean distclean dist.src,$(if $(strip $(MAKECMDGOALS)),$(MAKECMDGOALS),all)),)
+SAVED_GAMES_FILEDIR := $(shell powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./windows/windows-saved-games.ps1)
+ifeq ($(strip $(SAVED_GAMES_FILEDIR)),)
+$(error Cannot resolve the Windows Saved Games known folder; check PowerShell and windows-saved-games.ps1)
+endif
+RESOLVED_FILEDIR := $(SAVED_GAMES_FILEDIR)
+AUTO_PREPARE_FILEDIR := 1
+endif
+else
+RESOLVED_FILEDIR := $(FILEDIR)
+endif
+
+# Explicit SAVEDIR/SCOREDIR/LOCKDIR take precedence over FILEDIR.
 SAVEFILE ?= $(PROG).save
-SAVEDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+SAVEDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
 SCOREFILE ?= $(PROG).scr
-SCOREDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+SCOREDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
 LOCKFILE ?= $(PROG).lock
-LOCKDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+LOCKDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
 CFLAGS ?= -std=gnu89 -O2 -g -Wall -Wextra
 USER_CPPFLAGS := $(CPPFLAGS)
 EXTRA_CPPFLAGS ?=
 LDFLAGS ?=
-
-ifeq ($(PDC_BACKEND),vt)
-PDC_LIB := pdcurses_vt
-else ifeq ($(PDC_BACKEND),wincon)
-PDC_LIB := pdcurses_wincon
-else
-$(error PDC_BACKEND must be 'wincon' or 'vt')
-endif
 
 # MSYS2 shell quoting: argument values containing spaces stay valid C strings.
 shell_quote = '$(subst ','"'"',$(1))'
@@ -55,14 +71,11 @@ override CPPFLAGS := -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 \
     -DROGUE_LOCKFILE=$(call shell_quote,"$(LOCKFILE)") \
     -DROGUE_LOCKDIR=$(call shell_quote,"$(LOCKDIR)") \
     -DDEFAULT_LANGUAGE=$(DEFAULT_LANGUAGE) $(USER_CPPFLAGS) $(EXTRA_CPPFLAGS)
-ifeq ($(PDC_BACKEND),vt)
-override CPPFLAGS += -DROGUE_PDC_VT=1
-endif
 ifeq ($(WIZARD),1)
 override CPPFLAGS += -DWIZARD
 endif
 
-LDLIBS ?= -l$(PDC_LIB) -lwinmm -luser32 -lgdi32 -lcomdlg32 -lshell32 -lshlwapi -ladvapi32
+LDLIBS ?= -lpdcurses_vt -lwinmm -luser32 -lgdi32 -lcomdlg32 -lshell32 -lshlwapi -ladvapi32
 
 SRCS := armor.c chase.c command.c daemon.c daemons.c fight.c init.c io.c \
     list.c main.c misc.c monsters.c move.c new_level.c options.c pack.c \
@@ -71,8 +84,25 @@ SRCS := armor.c chase.c command.c daemon.c daemons.c fight.c init.c io.c \
     windows/rogue_windows.c windows/rogue_windows_console.c windows/unicode_output.c jec/unicode_text.c jec/screen_text.c xcrypt.c
 OBJS := $(SRCS:.c=.win.o)
 
-.PHONY: all clean distclean japanese english original wizard install
+.PHONY: all clean distclean japanese english original wizard install prepare-filedir
 all: $(PROG).exe
+
+# Only saved-games builds automatically create the directory.  Plain FILEDIR
+# keeps the old behavior; its directory can be made explicitly by invoking
+# make prepare-filedir FILEDIR=path in an MSYS2 UCRT64 shell.
+ifeq ($(AUTO_PREPARE_FILEDIR),1)
+$(PROG).exe: | prepare-filedir
+endif
+prepare-filedir:
+ifeq ($(strip $(RESOLVED_FILEDIR)),)
+	@echo "FILEDIR is unset; data files use the current directory."
+else
+ifeq ($(AUTO_PREPARE_FILEDIR),1)
+	@powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./windows/windows-saved-games.ps1 -Create
+else
+	@mkdir -p "$$(cygpath -u "$(RESOLVED_FILEDIR)")"
+endif
+endif
 
 # Track all effective compiler, linker and resource settings, including
 # overrides from make's command line and the active MSYS2 installation.
@@ -91,7 +121,6 @@ FORCE_WINDOWS_CONFIG:
 		$(call shell_quote,LDLIBS=$(LDLIBS)) \
 		$(call shell_quote,WINDRES=$(WINDRES)) \
 		$(call shell_quote,MINGW_PREFIX=$(MINGW_PREFIX)) \
-		$(call shell_quote,PDC_BACKEND=$(PDC_BACKEND)) \
 		$(call shell_quote,WIZARD=$(WIZARD)) > $@.tmp
 	@if test -f $@ && cmp -s $@.tmp $@; then rm -f $@.tmp; else mv $@.tmp $@; fi
 $(OBJS): .windows-build-config
@@ -109,14 +138,14 @@ $(PROG).exe: $(OBJS) $(ICON_OBJ)
 
 japanese:
 	$(MAKE) -f Makefile.win clean PROG=$(PROG)
-	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=1 PDC_BACKEND=$(PDC_BACKEND)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=1
 english:
 	$(MAKE) -f Makefile.win clean PROG=$(PROG)
-	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=2 PDC_BACKEND=$(PDC_BACKEND)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=2
 original: english
 wizard:
 	$(MAKE) -f Makefile.win clean PROG=$(PROG)
-	$(MAKE) -f Makefile.win all PROG=$(PROG) WIZARD=1 PDC_BACKEND=$(PDC_BACKEND)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) WIZARD=1
 
 # Windows binary files are intentionally relative to the working directory
 # (the extracted distribution folder when launched from Explorer).

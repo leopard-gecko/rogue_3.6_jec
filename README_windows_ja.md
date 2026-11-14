@@ -33,7 +33,7 @@ make clean
 make
 ```
 
-成功すると **`rogue.exe`** が作成されます。Windows版は通常、VT方式の描画を使用します。Windowsでのビルドに`./configure`や`make install`は不要です。
+成功すると **`rogue.exe`** が作成されます。Windows版はVT方式の描画を使用します。Windowsでのビルドに`./configure`や`make install`は不要です。
 
 | 目的 | コマンド |
 |---|---|
@@ -41,7 +41,6 @@ make
 | 英語を初期表示にした`rogue_original.exe`を作る | `make PROGRAM=rogue_original original` |
 | ウィザード機能を組み込む | `make wizard` |
 | 実行ファイル名を`rogue36.exe`にする | `make PROGRAM=rogue36` |
-| Windows Console用の描画方式で作る | `make clean` → `make PDC_BACKEND=wincon` |
 
 `PROG=`も従来どおり使用できます。`PROGRAM=`と`PROG=`を同時に指定した場合は`PROG=`を優先します。`make original`は英語を初期表示にしますが、ゲーム内容やその他の初期設定は変更しません。ビルド設定を変更するときは、必要に応じて`make clean`してから作り直してください。
 
@@ -126,13 +125,26 @@ make clean
 make FILEDIR=rogue-data
 ```
 
-`FILEDIR`には既存のフォルダを指定してください。ほかの場所に保存する場合の例：
+通常の `FILEDIR` 指定ではフォルダは自動作成されません。**先に作成し、書き込み権限を確保してください。** ほかの場所に保存する場合の例：
 
 ```sh
 mkdir -p '/c/Users/Public/Rogue36Data'
 make clean
 make FILEDIR='C:/Users/Public/Rogue36Data'
 ```
+
+フォルダの作成だけを行う場合は `make prepare-filedir FILEDIR='C:/Users/Public/Rogue36Data'` も利用できます。
+
+**Windowsの「保存したゲーム」を利用する場合（個人用ビルド）：**
+
+```sh
+make clean
+make FILEDIR=saved-games
+```
+
+Windowsの「保存したゲーム」（Saved Games）の実際の保存先を取得し、その下の `Rogue/3.6` フォルダにセーブ・スコア・ロックファイルを保存します。5.4版のセーブファイルやスコアと混在しないよう、3.6専用のフォルダを使用します。保存先が変更・移動されていても取得でき、フォルダがなければビルド時に自動作成します。この機能には **MSYS2 UCRT64とPowerShell** が必要です。
+
+**注意：この設定ではビルドしたユーザーの絶対パスがEXEに埋め込まれます。別のPCへ配布する実行ファイルでは `FILEDIR=saved-games` を使用せず、`FILEDIR` を指定しない通常ビルドにしてください。**
 
 **保存先を分ける場合：**
 
@@ -144,7 +156,7 @@ make SAVEDIR=rogue-data/saves \
      LOCKDIR=rogue-data/scores
 ```
 
-ファイル名は`SAVEFILE=NAME`、`SCOREFILE=NAME`、`LOCKFILE=NAME`で変更できます。保存先やファイル名の指定後は再ビルドしてください。相対パスはゲーム起動時の作業フォルダを基準にします。別のPCへ実行ファイルを配布するときは、保存先を固定せず既定のままにすると扱いやすくなります。
+ファイル名は `SAVEFILE=NAME`、`SCOREFILE=NAME`、`LOCKFILE=NAME` で変更できます。`SAVEDIR=DIR`、`SCOREDIR=DIR`、`LOCKDIR=DIR` を個別に指定した場合は、対応する保存先について `FILEDIR` より優先されます。保存先やファイル名を変更した場合は再ビルドしてください。相対パスはゲーム起動時の作業フォルダを基準にします。
 
 ## 6. 配布ファイルと説明書
 
@@ -154,6 +166,7 @@ make SAVEDIR=rogue-data/saves \
 | `rogue.save` / `rogue.scr` / `rogue.lock` | セーブ／スコア／ロック |
 | `Makefile` / `Makefile.win` / `dist-src.mk` | ビルド用 |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows用アイコン |
+| `windows/windows-saved-games.ps1` | Windowsの「保存したゲーム」の場所の取得・3.6用フォルダ作成 |
 | `*.c` / `*.h` | ルートディレクトリのゲーム本体ソースコード |
 | `jec/` | JEC独自の共通機能（言語切り替え、Unicode文字列処理、画面表示補助など） |
 | `windows/` | Windows専用のソースコードとアイコン関連ファイル |

@@ -33,7 +33,7 @@ make clean
 make
 ```
 
-This creates **`rogue.exe`**. The default Windows build uses VT rendering. You do not need `./configure` or `make install` on Windows.
+This creates **`rogue.exe`**. Windows builds use VT rendering. You do not need `./configure` or `make install` on Windows.
 
 | Purpose | Command |
 |---|---|
@@ -41,7 +41,6 @@ This creates **`rogue.exe`**. The default Windows build uses VT rendering. You d
 | Create `rogue_original.exe` with English as the initial language | `make PROGRAM=rogue_original original` |
 | Include wizard support | `make wizard` |
 | Name the executable `rogue36.exe` | `make PROGRAM=rogue36` |
-| Build with the Windows Console rendering backend | `make clean` → `make PDC_BACKEND=wincon` |
 
 `PROG=` remains supported. If both `PROGRAM=` and `PROG=` are specified, `PROG=` takes precedence. `make original` changes the initial language to English; it does not change gameplay or other defaults. Run `make clean` before rebuilding when changing the build configuration as needed.
 
@@ -126,13 +125,26 @@ make clean
 make FILEDIR=rogue-data
 ```
 
-Create the directory before building. To store files elsewhere, for example:
+Normal `FILEDIR` paths are **not created automatically**. Create the directory first and ensure the game can write to it. To store files elsewhere, for example:
 
 ```sh
 mkdir -p '/c/Users/Public/Rogue36Data'
 make clean
 make FILEDIR='C:/Users/Public/Rogue36Data'
 ```
+
+Alternatively, use `make prepare-filedir FILEDIR='C:/Users/Public/Rogue36Data'` to create the directory explicitly.
+
+**Use the Windows Saved Games known folder (personal builds only):**
+
+```sh
+make clean
+make FILEDIR=saved-games
+```
+
+This resolves the current user's actual Windows Saved Games folder (including redirection) and saves the game, score and lock files in its `Rogue/3.6` subfolder. This keeps Rogue 3.6 save and score files separate from Rogue 5.4.5. The directory is created automatically if necessary. **MSYS2 UCRT64 and PowerShell** are required for this option.
+
+**Important: The builder's absolute directory path is embedded in the EXE. Do not use `FILEDIR=saved-games` when building binaries for distribution to other PCs; leave `FILEDIR` unset instead.**
 
 **Use separate directories:**
 
@@ -144,7 +156,7 @@ make SAVEDIR=rogue-data/saves \
      LOCKDIR=rogue-data/scores
 ```
 
-Set individual filenames with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=NAME`. Rebuild after changing these settings. Relative paths are resolved from the game's working directory. When distributing the executable to other PCs, the default file location is usually easiest to use.
+Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=NAME`. The directory overrides `SAVEDIR=DIR`, `SCOREDIR=DIR` and `LOCKDIR=DIR` take precedence over `FILEDIR` for their respective files. Rebuild after changing any of these settings. Relative paths are resolved from the game's working directory.
 
 ## 6. Files and distribution
 
@@ -154,6 +166,7 @@ Set individual filenames with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=NA
 | `rogue.save` / `rogue.scr` / `rogue.lock` | Save / score / lock files |
 | `Makefile` / `Makefile.win` / `dist-src.mk` | Build files |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows executable icon |
+| `windows/windows-saved-games.ps1` | Locate the Windows Saved Games folder and create its `Rogue/3.6` subfolder |
 | `*.c` / `*.h` | Core game source files in the top-level directory |
 | `jec/` | JEC-specific shared modules (language selection, Unicode text handling and screen helpers) |
 | `windows/` | Windows-specific source files and icon resources |

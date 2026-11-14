@@ -63,6 +63,7 @@ windows/rogue_windows.c
 windows/rogue_windows.h
 windows/rogue_windows_console.c
 windows/rogue_windows_console.h
+windows/windows-saved-games.ps1
 windows/unicode_output.c
 wizard.c
 xcrypt.c

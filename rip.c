@@ -277,7 +277,16 @@ void score(int amount, int flags, char monst)
 	return;
 
 #ifdef _WIN32
-    if ((fd = _open(score_path, O_RDWR | O_CREAT | O_BINARY, 0600)) < 0)
+    /* A Saved Games path may contain UTF-8 Japanese user/profile names.
+     * Use the wide CRT open path, as the Windows file lock above already does. */
+    {
+        wchar_t *wide_score_path = rogue_windows_utf8_to_wide(score_path);
+        fd = wide_score_path != NULL
+            ? _wopen(wide_score_path, O_RDWR | O_CREAT | O_BINARY, 0600)
+            : -1;
+        free(wide_score_path);
+    }
+    if (fd < 0)
 #else
     if ((fd = open(score_path, O_RDWR | O_CREAT, 0600)) < 0)
 #endif
