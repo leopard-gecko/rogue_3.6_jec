@@ -1,0 +1,394 @@
+/*
+ * Hero movement commands
+ *
+ * @(#)move.c	3.26 (Berkeley) 6/15/81
+ *
+ * BUG FIX!  Mike Hibler @ New Mexico Tech
+ *	This fixes the infamous "arrow bug".  The "arrow bug" was one in
+ *	which you would repeatedly go into an arrow trap until "an arrow
+ *	shoots past you".  When you picked it up and identified it, more 
+ *	times then not, you discovered that it was something like:
+ *		(+32756, +75643)
+ *	which, when wielded, made you pretty indestructable.  It also
+ *	gave you big points in a "total win" situation.  The problem was
+ *	that the o_hplus and o_dplus fields were never initialized after
+ *	the arrow was created.  The solution was, obviously, to initialize
+ *	these fields.  The fix itself is in the routine "be_trapped" under
+ *	the ARROWTRAP case.
+ */
+
+#include <curses.h>
+#include <ctype.h>
+#include "rogue.h"
+
+/*
+ * Used to hold the new hero position
+ */
+
+coord nh;
+
+/*
+ * do_run:
+ *	Start the hero running
+ */
+
+void do_run(char ch)
+{
+    running = TRUE;
+    after = FALSE;
+    runch = ch;
+}
+
+/*
+ * do_move:
+ *	Check to see that a move is legal.  If it is handle the
+ * consequences (fighting, picking up, etc.)
+ */
+
+void do_move(int dy, int dx)
+{
+    register char ch;
+
+    firstmove = FALSE;
+    if (no_move)
+    {
+	no_move--;
+	msg(JSTR("とらばさみのわなでまだ身動きがとれない。", "You are still stuck in the bear trap"));
+	return;
+    }
+    /*
+     * Do a confused move (maybe)
+     */
+    if (rnd(100) < 80 && on(player, ISHUH))
+	nh = *rndmove(&player);
+    else
+    {
+	nh.y = hero.y + dy;
+	nh.x = hero.x + dx;
+    }
+
+    /*
+     * Check if he tried to move off the screen or make an illegal
+     * diagonal move, and stop him if he did.
+     */
+    if (nh.x < 0 || nh.x > ROGUE_SCREEN_COLS-1 || nh.y < 0 || nh.y > ROGUE_SCREEN_LINES - 1
+	|| !diag_ok(&hero, &nh))
+    {
+	after = FALSE;
+	running = FALSE;
+	return;
+    }
+    if (running && ce(hero, nh))
+	after = running = FALSE;
+    ch = winat(nh.y, nh.x);
+    if (on(player, ISHELD) && ch != 'F')
+    {
+	msg(JSTR("怪物につかまえられている。", "You are being held"));
+	return;
+    }
+    switch(ch)
+    {
+	case ' ':
+	case '|':
+	case '-':
+	case SECRETDOOR:
+	    after = running = FALSE;
+	    return;
+	case TRAP:
+	    ch = be_trapped(&nh);
+	    if (ch == TRAPDOOR || ch == TELTRAP)
+		return;
+	    goto move_stuff;
+	case GOLD:
+	case POTION:
+	case SCROLL:
+	case FOOD:
+	case WEAPON:
+	case ARMOR:
+	case RING:
+	case AMULET:
+	case STICK:
+	    running = FALSE;
+	    take = ch;
+	    goto move_stuff;
+	default:
+move_stuff:
+	    if (ch == PASSAGE && winat(hero.y, hero.x) == DOOR)
+		light(&hero);
+	    else if (ch == DOOR)
+	    {
+		running = FALSE;
+		if (winat(hero.y, hero.x) == PASSAGE)
+		    light(&nh);
+	    }
+	    else if (ch == STAIRS)
+		running = FALSE;
+	    else if (isupper(ch))
+	    {
+		running = FALSE;
+		fight(&nh, ch, cur_weapon, FALSE);
+		return;
+	    }
+	    ch = winat(hero.y, hero.x);
+	    wmove(cw, unc(hero));
+	    waddch(cw, ch);
+	    hero = nh;
+	    wmove(cw, unc(hero));
+	    waddch(cw, PLAYER);
+    }
+}
+
+/*
+ * Called to illuminate a room.
+ * If it is dark, remove anything that might move.
+ */
+
+void light(coord *cp)
+{
+    register struct room *rp;
+    register int j, k;
+    register char ch, rch;
+    register struct linked_list *item;
+
+    if ((rp = roomin(cp)) != NULL && !on(player, ISBLIND))
+    {
+	for (j = 0; j < rp->r_max.y; j++)
+	{
+	    for (k = 0; k < rp->r_max.x; k++)
+	    {
+		ch = show(rp->r_pos.y + j, rp->r_pos.x + k);
+		wmove(cw, rp->r_pos.y + j, rp->r_pos.x + k);
+		/*
+		 * Figure out how to display a secret door
+		 */
+		if (ch == SECRETDOOR)
+		{
+		    if (j == 0 || j == rp->r_max.y - 1)
+			ch = '-';
+		    else
+			ch = '|';
+		}
+		/*
+		 * If the room is a dark room, we might want to remove
+		 * monsters and the like from it (since they might
+		 * move)
+		 */
+		if (isupper(ch))
+		{
+		    item = wake_monster(rp->r_pos.y+j, rp->r_pos.x+k);
+		    if (item != NULL)
+		    {
+			register struct thing *tp;
+
+			tp = (struct thing *) ldata(item);
+			if (tp != NULL && tp->t_oldch == ' ')
+			    if (!(rp->r_flags & ISDARK))
+				tp->t_oldch =
+				    rogue_chtype_to_char(mvwinch(stdscr, rp->r_pos.y+j, rp->r_pos.x+k));
+		    }
+		}
+		if (rp->r_flags & ISDARK)
+		{
+		    rch = rogue_chtype_to_char(mvwinch(cw, rp->r_pos.y+j, rp->r_pos.x+k));
+		    switch (rch)
+		    {
+			when DOOR:
+			case STAIRS:
+			case TRAP:
+			case '|':
+			case '-':
+			case ' ':
+			    ch = rch;
+			when FLOOR:
+			    ch = (on(player, ISBLIND) ? FLOOR : ' ');
+			otherwise:
+			    ch = ' ';
+		    }
+		}
+		mvwaddch(cw, rp->r_pos.y+j, rp->r_pos.x+k, ch);
+	    }
+	}
+    }
+}
+
+/*
+ * show:
+ *	returns what a certain thing will display as to the un-initiated
+ */
+
+int show(int y, int x)
+{
+    register char ch = winat(y, x);
+    register struct linked_list *it;
+    register struct thing *tp;
+
+    if (ch == TRAP)
+	return (trap_at(y, x)->tr_flags & ISFOUND) ? TRAP : FLOOR;
+    else if (ch == 'M' || ch == 'I')
+    {
+	if ((it = find_mons(y, x)) == NULL)
+	{
+	    msg(JSTR("表示する怪物が見つからない。", "Can't find monster in show"));
+	    return rogue_chtype_to_char(mvwinch(stdscr, y, x));
+	}
+	tp = (struct thing *) ldata(it);
+	if (ch == 'M')
+	    ch = tp->t_disguise;
+	/*
+	 * Hide invisible monsters
+	 */
+	else if (off(player, CANSEE))
+	    ch = rogue_chtype_to_char(mvwinch(stdscr, y, x));
+    }
+    return ch;
+}
+
+/*
+ * be_trapped:
+ *	The guy stepped on a trap.... Make him pay.
+ */
+
+int be_trapped(coord *tc)
+{
+    register struct trap *tp;
+    register char ch;
+
+    tp = trap_at(tc->y, tc->x);
+    count = running = FALSE;
+    mvwaddch(cw, tp->tr_pos.y, tp->tr_pos.x, TRAP);
+    tp->tr_flags |= ISFOUND;
+    switch (ch = tp->tr_type)
+    {
+	when TRAPDOOR:
+	    level++;
+	    new_level();
+	    msg(JSTR("わなの中に落ちた！", "You fell into a trap!"));
+	when BEARTRAP:
+	    no_move += BEARTIME;
+	    msg(JSTR("とらばさみのわなにつかまった。", "You are caught in a bear trap"));
+	when SLEEPTRAP:
+	    no_command += SLEEPTIME;
+	    msg(JSTR("不思議な白いもやにつつまれ、眠り込んでしまった。", "A strange white mist envelops you and you fall asleep"));
+	when ARROWTRAP:
+	    if (swing(pstats.s_lvl-1, pstats.s_arm, 1))
+	    {
+		msg(JSTR("うわっ！矢に撃たれた。", "Oh no! An arrow shot you"));
+		if ((pstats.s_hpt -= roll(1, 6)) <= 0)
+		{
+		    msg(JSTR("矢に撃たれて死んでしまった。", "The arrow killed you."));
+		    death('a');
+		}
+	    }
+	    else
+	    {
+		register struct linked_list *item;
+		register struct object *arrow;
+
+		msg(JSTR("矢が体をかすめていった。", "An arrow shoots past you."));
+		item = new_item(sizeof *arrow);
+		arrow = (struct object *) ldata(item);
+		arrow->o_type = WEAPON;
+		arrow->o_which = ARROW;
+		init_weapon(arrow, ARROW);
+		arrow->o_count = 1;
+		arrow->o_pos = hero;
+		/* BUG FIX!  This fixes the infamous "arrow bug". */
+		arrow->o_hplus = arrow->o_dplus = 0;
+		if (rnd(100) < 15)
+		    arrow->o_hplus += rnd(3)+1;
+		/* End of BUG FIX! */
+		fall(item, FALSE);
+	    }
+	when TELTRAP:
+	    teleport();
+	when DARTTRAP:
+	    if (swing(pstats.s_lvl+1, pstats.s_arm, 1))
+	    {
+		msg(JSTR("小さな投げ矢が肩に刺さった。", "A small dart just hit you in the shoulder"));
+		if ((pstats.s_hpt -= roll(1, 4)) <= 0)
+		{
+		    msg(JSTR("毒の投げ矢が当たり死んでしまった。", "The dart killed you."));
+		    death('d');
+		}
+		if (!ISWEARING(R_SUSTSTR))
+		    chg_str(-1);
+	    }
+	    else
+		msg(JSTR("小さな投げ矢が耳をかすめ、どこかに消えてしまった。", "A small dart whizzes by your ear and vanishes."));
+    }
+    rogue_flush_typeahead();
+    return(ch);
+}
+
+/*
+ * trap_at:
+ *	find the trap at (y,x) on screen.
+ */
+
+struct trap * trap_at(int y, int x)
+{
+    register struct trap *tp, *ep;
+
+    ep = &traps[ntraps];
+    for (tp = traps; tp < ep; tp++)
+	if (tp->tr_pos.y == y && tp->tr_pos.x == x)
+	    break;
+    if (tp == ep)
+	if (wizard) msg(JSTR("%d,%d の罠が配列にない", "Trap at %d,%d not in array"), y, x);
+    return tp;
+}
+
+/*
+ * rndmove:
+ *	move in a random direction if the monster/person is confused
+ */
+
+coord * rndmove(struct thing *who)
+{
+    register int x, y;
+    register char ch;
+    register int ex, ey, nopen = 0;
+    register struct linked_list *item;
+    register struct object *obj;
+    static coord ret;  /* what we will be returning */
+    static coord dest;
+
+    ret = who->t_pos;
+    /*
+     * Now go through the spaces surrounding the player and
+     * set that place in the array to true if the space can be
+     * moved into
+     */
+    ey = ret.y + 1;
+    ex = ret.x + 1;
+    for (y = who->t_pos.y - 1; y <= ey; y++)
+	if (y >= 0 && y < ROGUE_SCREEN_LINES)
+	    for (x = who->t_pos.x - 1; x <= ex; x++)
+	    {
+		if (x < 0 || x >= ROGUE_SCREEN_COLS)
+		    continue;
+		ch = winat(y, x);
+		if (step_ok(ch))
+		{
+		    dest.y = y;
+		    dest.x = x;
+		    if (!diag_ok(&who->t_pos, &dest))
+			continue;
+		    if (ch == SCROLL)
+		    {
+			item = NULL;
+			for (item = lvl_obj; item != NULL; item = next(item))
+			{
+			    obj = (struct object *) ldata(item);
+			    if (y == obj->o_pos.y && x == obj->o_pos.x)
+				break;
+			}
+			if (item != NULL && obj->o_which == S_SCARE)
+			    continue;
+		    }
+		    if (rnd(++nopen) == 0)
+			ret = dest;
+		}
+	    }
+    return &ret;
+}

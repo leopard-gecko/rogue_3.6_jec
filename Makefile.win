@@ -1,0 +1,133 @@
+# Native Windows build: MSYS2 UCRT64 + PDCursesMod (wide/UTF-8).
+# vt is the default backend for both mintty (UCRT64) and Windows console.
+# The Unix build remains in Makefile. Windows does not use ./configure.
+#
+# pacman -S --needed make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-binutils mingw-w64-ucrt-x86_64-pdcurses
+# make clean && make
+# make PROGRAM=rogue_original original
+# make wizard
+
+CC = gcc
+WINDRES ?= windres
+ICON_OBJ := windows/rogue-icon.win.o
+MINGW_PREFIX ?= /ucrt64
+PDC_BACKEND ?= vt
+PROG ?= rogue
+
+# PROGRAM is an alternative name for PROG on the make command line.
+# Keep an explicit PROG= authoritative if both variables are provided.
+# Use override so PROGRAM= can replace PROG set by ./configure (config.mk).
+ifneq ($(strip $(PROGRAM)),)
+ifneq ($(origin PROG),command line)
+override PROG := $(PROGRAM)
+endif
+endif
+DEFAULT_LANGUAGE ?= 0
+FILEDIR ?=
+SAVEFILE ?= $(PROG).save
+SAVEDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+SCOREFILE ?= $(PROG).scr
+SCOREDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+LOCKFILE ?= $(PROG).lock
+LOCKDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
+CFLAGS ?= -std=gnu89 -O2 -g -Wall -Wextra
+USER_CPPFLAGS := $(CPPFLAGS)
+EXTRA_CPPFLAGS ?=
+LDFLAGS ?=
+
+ifeq ($(PDC_BACKEND),vt)
+PDC_LIB := pdcurses_vt
+else ifeq ($(PDC_BACKEND),wincon)
+PDC_LIB := pdcurses_wincon
+else
+$(error PDC_BACKEND must be 'wincon' or 'vt')
+endif
+
+# MSYS2 shell quoting: argument values containing spaces stay valid C strings.
+shell_quote = '$(subst ','"'"',$(1))'
+override CPPFLAGS := -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 \
+    -DPDC_WIDE=1 -DPDC_FORCE_UTF8=1 \
+    -I. -I$(MINGW_PREFIX)/include/pdcurses \
+    -DROGUE_SAVEFILE=$(call shell_quote,"$(SAVEFILE)") \
+    -DROGUE_SAVEDIR=$(call shell_quote,"$(SAVEDIR)") \
+    -DROGUE_SCOREFILE=$(call shell_quote,"$(SCOREFILE)") \
+    -DROGUE_SCOREDIR=$(call shell_quote,"$(SCOREDIR)") \
+    -DROGUE_LOCKFILE=$(call shell_quote,"$(LOCKFILE)") \
+    -DROGUE_LOCKDIR=$(call shell_quote,"$(LOCKDIR)") \
+    -DDEFAULT_LANGUAGE=$(DEFAULT_LANGUAGE) $(USER_CPPFLAGS) $(EXTRA_CPPFLAGS)
+ifeq ($(PDC_BACKEND),vt)
+override CPPFLAGS += -DROGUE_PDC_VT=1
+endif
+ifeq ($(WIZARD),1)
+override CPPFLAGS += -DWIZARD
+endif
+
+LDLIBS ?= -l$(PDC_LIB) -lwinmm -luser32 -lgdi32 -lcomdlg32 -lshell32 -lshlwapi -ladvapi32
+
+SRCS := armor.c chase.c command.c daemon.c daemons.c fight.c init.c io.c \
+    list.c main.c misc.c monsters.c move.c new_level.c options.c pack.c \
+    passages.c potions.c rings.c rip.c rooms.c save.c scrolls.c sticks.c \
+    things.c weapons.c wizard.c vers.c globals.c getpass.c jec/language.c \
+    windows/rogue_windows.c windows/rogue_windows_console.c windows/unicode_output.c jec/unicode_text.c jec/screen_text.c xcrypt.c
+OBJS := $(SRCS:.c=.win.o)
+
+.PHONY: all clean distclean japanese english original wizard install
+all: $(PROG).exe
+
+# Track all effective compiler, linker and resource settings, including
+# overrides from make's command line and the active MSYS2 installation.
+# Keep the timestamp unchanged if the settings have not changed, so a
+# second invocation of make does not rebuild unchanged objects.
+.PHONY: FORCE_WINDOWS_CONFIG
+FORCE_WINDOWS_CONFIG:
+
+.windows-build-config: FORCE_WINDOWS_CONFIG
+	@printf '%s\n' \
+		$(call shell_quote,PROG=$(PROG)) \
+		$(call shell_quote,CC=$(CC)) \
+		$(call shell_quote,CFLAGS=$(CFLAGS)) \
+		$(call shell_quote,CPPFLAGS=$(CPPFLAGS)) \
+		$(call shell_quote,LDFLAGS=$(LDFLAGS)) \
+		$(call shell_quote,LDLIBS=$(LDLIBS)) \
+		$(call shell_quote,WINDRES=$(WINDRES)) \
+		$(call shell_quote,MINGW_PREFIX=$(MINGW_PREFIX)) \
+		$(call shell_quote,PDC_BACKEND=$(PDC_BACKEND)) \
+		$(call shell_quote,WIZARD=$(WIZARD)) > $@.tmp
+	@if test -f $@ && cmp -s $@.tmp $@; then rm -f $@.tmp; else mv $@.tmp $@; fi
+$(OBJS): .windows-build-config
+
+# Embed the same multi-resolution icon in all Windows executables.
+# Also recompile the icon if the resource compiler or build setup changes.
+$(ICON_OBJ): windows/rogue-icon.rc windows/rogue.ico .windows-build-config
+	$(WINDRES) -Iwindows -i windows/rogue-icon.rc -O coff -o $@
+
+%.win.o: %.c rogue.h mach_dep.h windows/rogue_windows.h windows/rogue_windows_console.h jec/language.h jec/unicode_text.h jec/unicode_output.h jec/screen_text.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+$(PROG).exe: $(OBJS) $(ICON_OBJ)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(ICON_OBJ) $(LDLIBS)
+
+japanese:
+	$(MAKE) -f Makefile.win clean PROG=$(PROG)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=1 PDC_BACKEND=$(PDC_BACKEND)
+english:
+	$(MAKE) -f Makefile.win clean PROG=$(PROG)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) DEFAULT_LANGUAGE=2 PDC_BACKEND=$(PDC_BACKEND)
+original: english
+wizard:
+	$(MAKE) -f Makefile.win clean PROG=$(PROG)
+	$(MAKE) -f Makefile.win all PROG=$(PROG) WIZARD=1 PDC_BACKEND=$(PDC_BACKEND)
+
+# Windows binary files are intentionally relative to the working directory
+# (the extracted distribution folder when launched from Explorer).
+install:
+	@echo 'Windows build: copy the .exe and README files to your distribution folder.'
+
+clean:
+	rm -f $(OBJS) language.win.o unicode_text.win.o screen_text.win.o rogue_windows.win.o rogue_windows_console.win.o unicode_output.win.o rogue-icon.win.o $(ICON_OBJ) $(PROG).exe .windows-build-config .windows-build-config.tmp
+
+distclean: clean
+	@echo 'Windows build does not use ./configure or config.mk.'
+
+# Shared source archive target (also used by Makefile on Unix).
+include dist-src.mk

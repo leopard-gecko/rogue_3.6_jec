@@ -1,0 +1,137 @@
+# Rogue 3.6 — macOS / Linux (English)
+
+Rogue is a computer role-playing game created around 1980, in which players explore dungeons drawn with letters and symbols. They battle monsters and use various items while searching for the Amulet of Yendor hidden deep within the dungeon.
+
+**Rogue 3.6, widely distributed in 1981, is the oldest version of Rogue still available today.** It is a historically valuable glimpse of Rogue in its earliest days. Compared with later versions such as Rogue 5.2 and 5.4, it retains distinctive early monsters, items, and game mechanics.
+
+This updated edition preserves the original gameplay as closely as possible while adding Japanese/English support and compatibility with modern operating systems.
+
+For an overview of the game, controls, items and how to play, see the included [English guide, *A Guide to the Dungeons of Doom*](rogue_en.html), or the [Japanese guide, 「【運命の洞窟】への案内書」](rogue_ja.html). Both can be opened in a web browser without an internet connection. The guide is also available [online](https://leopard-gecko.github.io/jrogue/guide.html?version=36). This README covers preparation, building, launching, file locations and distribution.
+
+This guide is for **macOS, Linux and Raspberry Pi OS**. Other guides: [macOS / Linux・Japanese](README_mac_linux_ja.md) / [Windows・Japanese](README_windows_ja.md) / [Windows・English](README_windows_en.md).
+
+## 1. Requirements
+
+Extract the source archive and open a terminal in its directory.
+
+**macOS:** install Apple's command-line tools:
+
+```sh
+xcode-select --install
+```
+
+**Ubuntu / Debian / Raspberry Pi OS:**
+
+```sh
+sudo apt update
+sudo apt install build-essential libncurses-dev
+```
+
+**Fedora:** `sudo dnf install gcc make ncurses-devel libxcrypt-devel`  
+**Arch Linux:** `sudo pacman -S --needed base-devel ncurses libxcrypt`
+
+On Linux, configure the build for your system first. On macOS, `make` normally works without running `configure`.
+
+```sh
+./configure
+```
+
+## 2. Build
+
+```sh
+make clean
+make
+```
+
+This produces **`rogue`**. A regular build chooses the initial language from the OS language environment. `make original` starts in English; it does not change the gameplay or other default options.
+
+| Purpose | Command |
+|---|---|
+| Regular build | `make` |
+| Start in English | `make original` |
+| Include wizard support | `make wizard` |
+| Name the executable `rogue36` | `make PROGRAM=rogue36` (one-off) or `./configure --program=rogue36` → `make` |
+
+If you change the executable name, replace `rogue` in the commands below. `./configure` stores settings in `config.mk`. Rebuild with `make clean` when changing build settings as needed.
+
+## 3. Launch
+
+```sh
+./rogue
+```
+
+A normal launch starts a new game. The dungeon display is **fixed at 80 columns × 24 rows**, so use a terminal at least that size.
+
+To display scores without starting a game:
+
+```sh
+./rogue -s
+```
+
+See the guide linked above for gameplay instructions.
+
+## 4. Installation (optional)
+
+You can run the game from the build directory without installing it. A standard installation under `/usr/local` uses:
+
+```sh
+sudo make install
+```
+
+To choose another location, first use `./configure --prefix=DIR`. Use `--program=NAME` to change the executable name. Run `make uninstall` to remove the installation.
+
+## 5. Save, score and lock file locations
+
+By default, **`rogue.save`**, **`rogue.scr`** and **`rogue.lock`** are placed in the game's working directory. The default data filenames change when the executable name changes.
+
+**Keep all three files in one directory:**
+
+```sh
+mkdir -p "$HOME/.local/share/rogue36"
+./configure --file-dir="$HOME/.local/share/rogue36"
+make clean
+make
+```
+
+The player needs write access to the data folder. `make install` creates a missing `--file-dir` directory as needed, but a directory created with `sudo` might not be writable by the player; the example creates it as the current user first.
+
+**Use separate directories for saves, scores and locks:**
+
+```sh
+mkdir -p "$HOME/Games/Rogue/saves" "$HOME/Games/Rogue/scores"
+./configure --savedir="$HOME/Games/Rogue/saves" \
+            --scoredir="$HOME/Games/Rogue/scores" \
+            --lockdir="$HOME/Games/Rogue/scores"
+make clean
+make
+```
+
+Individual filenames can be set with `./configure --savefile=NAME`, `--scorefile=NAME` and `--lockfile=NAME`. You can also use `make PROGRAM=NAME FILEDIR=DIR` or the existing `make PROG=NAME FILEDIR=DIR`. If both are specified, `PROG=` takes precedence. `./configure --program=NAME` saves the name in `config.mk`; `make PROGRAM=NAME` overrides it for that invocation only. Rebuild after changing these settings.
+
+## 6. Files and distribution
+
+| File | Purpose |
+|---|---|
+| `rogue` | Built game executable |
+| `rogue.save` / `rogue.scr` / `rogue.lock` | Save / score / lock files |
+| `configure` / `Makefile` / `Makefile.win` / `dist-src.mk` | Build and installation |
+| `config.mk` / `config.log` | Settings and check log generated by `configure` |
+| `*.c` / `*.h` | Core game source files in the top-level directory |
+| `jec/` | JEC-specific shared modules (language selection, Unicode text handling and screen helpers) |
+| `windows/` | Windows-specific source files and icon resources |
+| `original-notes/` | Historical supporting files from the original Rogue 3.6 (not used in normal builds) |
+| `rogue_ja.html` / `rogue_en.html` | *A Guide to the Dungeons of Doom* (Japanese / English, available offline) |
+| `tools/` | Source archive script and file manifest |
+| `LICENSE.txt` | License |
+| `README_mac_linux_ja.md` / `README_mac_linux_en.md` | macOS / Linux READMEs (Japanese/English) |
+| `README_windows_ja.md` / `README_windows_en.md` | Windows READMEs (Japanese/English) |
+
+**Creating a source archive:** Run `make dist.src` to create `rogue36_004-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
+
+## 7. Main changes from the original Rogue 3.6
+
+- **Modern systems:** Build and play on macOS, Linux and Raspberry Pi OS.
+- **Two languages:** Added Japanese messages, item names, options and score display, with startup and in-game switching.
+- **Display:** Improved UTF-8 text, message recall and long-string handling, and fixed the dungeon to 80 columns × 24 rows.
+- **Files and builds:** Configurable executable name, installation location, and save/score/lock directories.
+- **Stability:** Fixes for combat, items, screen display and wizard-mode password entry.
