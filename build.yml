@@ -1,0 +1,87 @@
+
+name: Build Rogue 3.6 JEC
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, name: linux-x64 }
+          - { os: ubuntu-24.04-arm, name: linux-arm64 }
+          - { os: macos-15-intel, name: macos-intel }
+          - { os: macos-15, name: macos-arm64 }
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses-dev libcrypt-dev
+
+      - name: Configure Linux build
+        if: runner.os == 'Linux'
+        run: sh ./configure --program=rogue36
+
+      - name: Build
+        run: |
+          make PROGRAM=rogue36
+          mkdir -p dist
+          cp rogue36 dist/
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rogue36-${{ matrix.name }}
+          path: dist/rogue36
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-2025
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Configure Git line endings
+        shell: pwsh
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v6
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-pdcurses
+
+      - name: Build
+        run: |
+          make PROGRAM=rogue36
+          mkdir -p dist
+          cp rogue36.exe dist/
+          objdump -p dist/rogue36.exe | grep "DLL Name:" || true
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rogue36-windows-x64
+          path: dist/rogue36.exe
+          if-no-files-found: error
+
