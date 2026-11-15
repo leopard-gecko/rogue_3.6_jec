@@ -28,7 +28,7 @@ SUCH DAMAGE.
 
 ===========================================================================
 
-Portions of this software (xcrypt.c) are based on the work 
+Portions of this software (xcrypt.c) are based on the work
 of David Burren. Used under license:
 
 FreeSec: libcrypt
@@ -52,7 +52,7 @@ THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) AND CONTRIBUTORS ``AS IS'' AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) OR CONTRIBUTORS BE LIABLE
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
 OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
@@ -84,13 +84,44 @@ is claimed.
 
 Icon Artwork
 ------------
-The icon artwork included with Rogue 3.6 JEC was created for this modified
-edition.
+The Windows executable icon artwork included with Rogue 3.6 JEC was created
+for this modified edition.
 
-Artwork credit: leopardgecko
+Copyright (c) 2026 leopardgecko
+All rights reserved.
 
-The icon may be redistributed together with Rogue 3.6 JEC for non-commercial
-purposes, provided that this notice is retained.
+The icon artwork is licensed under the BSD 3-Clause License:
 
-Permission for separate use of the icon is not granted by this notice.
-These icon-specific conditions do not change the source-code licenses above.
+Redistribution and use of the icon artwork, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of the icon artwork in source or editable form must
+   retain the above copyright notice, this list of conditions and the
+   following disclaimer.
+2. Redistributions of the icon artwork in binary or compiled form must
+   reproduce the above copyright notice, this list of conditions and the
+   following disclaimer in the documentation and/or other materials
+   provided with the distribution.
+3. Neither the name of leopardgecko nor the names of other contributors
+   may be used to endorse or promote products derived from the icon
+   artwork without specific prior written permission.
+
+THIS ICON ARTWORK IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE, ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS ARTWORK, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The icon artwork may be used, modified, and redistributed separately or
+together with Rogue 3.6 JEC, including for commercial purposes, subject
+to the BSD 3-Clause License terms above.
+
+These icon-specific terms apply only to the original artwork owned by
+leopardgecko. They do not change the copyright or license terms of the
+original Rogue source code, FreeSec/libcrypt, or other third-party material.
