@@ -246,7 +246,7 @@ reference, with a short explanation of each command.</p>
 		leave it lying on the floor. Only one object can occupy each
 		space.</p></td></tr><tr><td>c</td><td><p align="justify">Call an object something. You can give a name to a type of object in your pack in order to remember it. This is useful for potions, scrolls, rings, and staves or wands.</p></td></tr><tr><td>o</td><td><p align="justify">Examine and set options. This command is further
 		explained in the section on options.</p></td></tr><tr><td>^L</td><td><p align="justify">Redraws the screen. Useful if spurious messages or
-		transmission errors have messed up the display.</p></td></tr><tr><td>^R</td><td><p align="justify">Repeat the last message. Useful when a message disappears before you can read it.</p></td></tr><tr><td>&lt;ESCAPE&gt;</td><td><p align="justify">Cancel a command, prefix, or count.</p></td></tr><tr><td>!</td><td><p align="justify">Escape to a shell. To return to the game, exit the shell.</p></td></tr><tr><td>S</td><td><p align="justify">Save the current game in a file. Rogue asks whether to use the default save file. Caveat: the save file is removed when you restore the game, to prevent repeatedly replaying dangerous situations. Restore the default save file with “rogue -r”, or specify a file as “rogue save_file”. In the Windows binary distribution, use “rogue36.exe” instead of “rogue”.</p></td></tr><tr><td>Q</td><td><p align="justify">Quit. Leave the game.</p></td></tr><tr><td>v</td><td><p align="justify">Prints the program version number.</p></td></tr></table>
+		transmission errors have messed up the display.</p></td></tr><tr><td>^R</td><td><p align="justify">Repeat the last message. Useful when a message disappears before you can read it.</p></td></tr><tr><td>&lt;ESCAPE&gt;</td><td><p align="justify">Cancel a command, prefix, or count.</p></td></tr><tr><td>!</td><td><p align="justify">Escape to a shell. To return to the game, exit the shell.</p></td></tr><tr><td>S</td><td><p align="justify">Save the current game in a file. Rogue asks whether to use the default save file. Caveat: the save file is removed when you restore the game, to prevent repeatedly replaying dangerous situations. To restore a saved game, specify its filename as “rogue save_file”.</p></td></tr><tr><td>Q</td><td><p align="justify">Quit. Leave the game.</p></td></tr><tr><td>v</td><td><p align="justify">Prints the program version number.</p></td></tr></table>
 </div>
 <h2 align="justify"><b>5. Dealing with objects</b></h2>
 <p align="justify">When you find something in the dungeon, it is common to want to pick the object up. This is accomplished in rogue by walking over the object. If you are carrying too many things, the program will tell you and it will not pick up the object; otherwise it will add it to your pack and tell you what you just picked up.</p>
@@ -363,7 +363,7 @@ square brackets.</p>
 	couple of places.</p>
 </blockquote>
 <p align="justify"><b>language</b> [<i>auto</i>]</p><blockquote><p align="justify">Select the display language. Use <code>language=ja</code> or <code>language=en</code> in ROGUEOPTS. If no language is specified, the normal build selects a language based on the operating system language setting. In the in-game options screen, press J for Japanese or E for English.</p></blockquote><p align="justify"><b>file</b> [<i>PROGRAM.save</i>]</p>
-<blockquote><p align="justify">The default file name for saving the game. It is <code>rogue.save</code> for the usual source build and <code>rogue36.save</code> for the Windows binary distribution. If your phone is hung up by accident, rogue will automatically save the game in this file. The file name may begin with the special character “~”, which expands to your home directory.</p></blockquote>
+<blockquote><p align="justify">The default file name for saving the game. The usual default is <code>rogue.save</code>; the name changes with the executable name. If your phone is hung up by accident, rogue will automatically save the game in this file. The file name may begin with the special character “~”, which expands to your home directory.</p></blockquote>
 <h2 align="justify"><br/>
 <b>10. Acknowledgements</b></h2>
 <p align="justify">Rogue was originally conceived of by Glenn Wichman and
@@ -390,6 +390,6 @@ for their ideas and assistance.</p>
 </td>
 </tr>
 </table>
-<p align="justify" style="margin-top: 1.5em;">Japanese translation and version-specific additions and revisions: <a href="https://x.com/leopard_gecko">leopardgecko</a></p>
+<p align="justify" style="margin-top: 1.5em;">Version-specific additions and revisions: <a href="https://x.com/leopard_gecko">leopardgecko</a></p>
 </body>
 </html>
