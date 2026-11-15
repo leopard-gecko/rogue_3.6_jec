@@ -3,6 +3,7 @@
 LICENSE.txt
 Makefile
 Makefile.win
+README.md
 README_mac_linux_en.md
 README_mac_linux_ja.md
 README_windows_en.md

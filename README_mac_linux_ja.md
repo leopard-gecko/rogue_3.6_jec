@@ -1,14 +1,8 @@
 # Rogue 3.6 — macOS / Linux（日本語）
 
-Rogueは、1980年頃に誕生した、文字や記号で描かれる迷宮を探索するコンピューターRPGです。プレイヤーは怪物と戦い、さまざまな道具を駆使しながら、迷宮の奥に隠された「イェンダーの魔除け」を探します。
+この文書では、**macOS、Linux、Raspberry Pi OS** でのビルド、起動、インストール、セーブ・スコアなどの保存先について説明します。Rogue 3.6とJEC版の紹介、および各OS・言語向け文書の一覧は[リポジトリのREADME](README.md)をご覧ください。操作方法や道具・オプションの説明は、同梱の[「【運命の洞窟】への案内書」](rogue_ja.html)にまとめています。
 
-**Rogue 3.6は、1981年に広く普及した、現在入手できる最古のRogueです。** Rogue誕生当時の姿を今に伝える歴史的にも貴重なバージョンであり、後のRogue 5.2や5.4とは異なる怪物や道具、ゲームの仕組みなど、初期のRogueならではの特徴が残されています。
-
-この修正版では、オリジナルのゲーム内容をできるだけ尊重しながら、日本語・英語の切り替えと現代のOSでの動作に対応しています。
-
-ゲームの概要・操作方法・遊び方、アイテムなどについては、同梱の[日本語版「【運命の洞窟】への案内書」](rogue_ja.html)、または[英語版「A Guide to the Dungeons of Doom」](rogue_en.html)をご覧ください。どちらもWebブラウザーで開くことができ、インターネット接続は不要です。案内書は[Web版](https://leopard-gecko.github.io/jrogue/guide.html?version=36)でも公開しています。このREADMEでは、開発環境の準備、ビルド、起動、保存先、配布ファイルなどを説明します。
-
-この説明書は **macOS / Linux / Raspberry Pi OS向け** です。ほかの説明書：[macOS / Linux・英語](README_mac_linux_en.md) ／ [Windows・日本語](README_windows_ja.md) ／ [Windows・英語](README_windows_en.md)
+English version: [README_mac_linux_en.md](README_mac_linux_en.md)
 
 ## 1. 開発環境の準備
 
@@ -122,16 +116,11 @@ make
 | `original-notes/` | オリジナルRogue 3.6の歴史的な付属資料（通常ビルドでは使用しません） |
 | `rogue_ja.html` / `rogue_en.html` | 「【運命の洞窟】への案内書」の日本語版／英語版（オフライン閲覧可） |
 | `tools/` | ソース配布アーカイブ作成用スクリプトと収録ファイル一覧 |
+| `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
-| `README_mac_linux_ja.md` / `README_mac_linux_en.md` | macOS / Linux向けの日英README |
-| `README_windows_ja.md` / `README_windows_en.md` | Windows向けの日英README |
 
 **ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_004-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
 
-## 7. オリジナルのRogue 3.6からの主な変更点
+## 7. 著作権・ライセンス
 
-- **現代のOSへの対応：** macOS、Linux、Raspberry Pi OSでビルドして遊べるようにしました。
-- **日本語・英語：** メッセージ、アイテム名、オプション画面、スコア表示などを日本語化し、起動時やゲーム中に言語を切り替えられるようにしました。
-- **表示：** UTF-8の日本語表示、メッセージ再表示、長い文字列の扱いを改善し、ダンジョン画面を80列×24行に固定しました。
-- **保存とビルド：** 実行ファイル名、インストール先、セーブ・スコア・ロックの保存先を指定できるようにしました。
-- **安定性：** 戦闘、アイテム、画面表示、ウィザードモードのパスワード入力などの不具合を修正しました。
+オリジナルRogueおよび既存のコードの著作権・ライセンス、JEC版での変更や謝辞については、[LICENSE.txt](LICENSE.txt)をご覧ください。

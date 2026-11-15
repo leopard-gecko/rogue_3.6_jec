@@ -1,14 +1,8 @@
 # Rogue 3.6 — Windows (English)
 
-Rogue is a computer role-playing game created around 1980, in which players explore dungeons drawn with letters and symbols. They battle monsters and use various items while searching for the Amulet of Yendor hidden deep within the dungeon.
+This document explains how to build and run Rogue 3.6 JEC on **Windows 10 / 11**, including environment variables and save, score, and lock file locations. For an introduction to Rogue 3.6 and JEC, and links to all platform guides, see the [repository README](README.md). For gameplay, commands, items, and options, see the included [*A Guide to the Dungeons of Doom*](rogue_en.html).
 
-**Rogue 3.6, widely distributed in 1981, is the oldest version of Rogue still available today.** It is a historically valuable glimpse of Rogue in its earliest days. Compared with later versions such as Rogue 5.2 and 5.4, it retains distinctive early monsters, items, and game mechanics.
-
-This updated edition preserves the original gameplay as closely as possible while adding Japanese/English support and compatibility with modern operating systems.
-
-For an overview of the game, controls, items and how to play, see the included [English guide, *A Guide to the Dungeons of Doom*](rogue_en.html), or the [Japanese guide, 「【運命の洞窟】への案内書」](rogue_ja.html). Both can be opened in a web browser without an internet connection. The guide is also available [online](https://leopard-gecko.github.io/jrogue/guide.html?version=36). This README explains requirements, building, launching, Windows environment variables, file locations and distribution.
-
-This guide is for **Windows 10 / 11**. Other guides: [Windows・Japanese](README_windows_ja.md) / [macOS / Linux・Japanese](README_mac_linux_ja.md) / [macOS / Linux・English](README_mac_linux_en.md).
+日本語版：[README_windows_ja.md](README_windows_ja.md)
 
 ## 1. Prepare the build environment
 
@@ -173,19 +167,13 @@ Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=
 | `original-notes/` | Historical supporting files from the original Rogue 3.6 (not used in normal builds) |
 | `rogue_ja.html` / `rogue_en.html` | *A Guide to the Dungeons of Doom* (Japanese / English, available offline) |
 | `tools/` | Source archive script and file manifest |
+| `README.md` | Project overview and links to platform READMEs and dungeon guides |
 | `LICENSE.txt` | License |
-| `README_windows_ja.md` / `README_windows_en.md` | Windows READMEs (Japanese/English) |
-| `README_mac_linux_ja.md` / `README_mac_linux_en.md` | macOS / Linux READMEs (Japanese/English) |
 
 If you copy `rogue.exe` to another PC, include any required runtime DLLs. MSYS2 is only needed to build the source, not merely to launch an already-built executable.
 
 **Creating a source archive:** Run `make dist.src` to create `rogue36_004-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
 
-## 7. Main changes from the original Rogue 3.6
+## 7. Copyright and license
 
-- **Windows support:** Build a native executable under MSYS2 UCRT64, including a Windows application icon.
-- **Two languages:** Japanese messages, items, options and score display, with startup and in-game switching.
-- **Japanese text:** Improved UTF-8 input and display for names, settings and emoji, and improved message display.
-- **Terminal display:** The dungeon is fixed at 80×24, and direct launches attempt to resize the terminal window.
-- **Score display:** A direct launch clears the game view and keeps the score list visible until Enter is pressed.
-- **Files and reliability:** Configurable data locations and improvements to scores, locking and wizard-mode password entry.
+See [LICENSE.txt](LICENSE.txt) for copyright notices and license terms for the original Rogue and existing code, as well as JEC modifications and acknowledgments.
