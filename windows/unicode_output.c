@@ -8,8 +8,8 @@
  * Keep the correct character positions in the curses screen by writing
  * two spaces for a supplementary-plane glyph, and paint that UTF-8 glyph
  * directly via VT positioning sequences immediately after wrefresh().
- * This is only enabled with the Windows VT backend; other curses builds
- * continue to use ordinary curses rendering.
+ * Windows builds always use the VT backend. Unix builds continue to
+ * use ordinary curses rendering through jec/unicode_output.h.
  */
 #ifdef _WIN32
 #include <curses.h>
@@ -18,7 +18,6 @@
 #include <string.h>
 #include "jec/unicode_output.h"
 
-#ifdef ROGUE_PDC_VT
 #define ROGUE_VT_GLYPHS 256
 struct rogue_vt_glyph {
     WINDOW *win;
@@ -93,11 +92,6 @@ void rogue_vt_repaint(WINDOW *win)
         fflush(stdout);
     }
 }
-#else
-void rogue_vt_clear_window(WINDOW *win) { (void)win; }
-void rogue_vt_clear_row(WINDOW *win, int row) { (void)win; (void)row; }
-void rogue_vt_repaint(WINDOW *win) { (void)win; }
-#endif
 
 int rogue_draw_utf8(WINDOW *win)
 {
@@ -155,7 +149,6 @@ int rogue_waddstr_utf8(WINDOW *win, const char *s)
                     result = ERR;
                 used = 0;
             }
-#ifdef ROGUE_PDC_VT
             {
                 int y, x;
                 getyx(win, y, x);
@@ -164,10 +157,6 @@ int rogue_waddstr_utf8(WINDOW *win, const char *s)
                 else
                     rogue_vt_remember(win, y, x, (const char *)p);
             }
-#else
-            if (waddch(win, (chtype)cp) == ERR)
-                result = ERR;
-#endif
             p += 4;
         }
         else

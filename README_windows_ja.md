@@ -158,7 +158,8 @@ make SAVEDIR=rogue-data/saves \
 |---|---|
 | `rogue.exe` | ビルド後のゲーム本体 |
 | `rogue.save` / `rogue.scr` / `rogue.lock` | セーブ／スコア／ロック |
-| `Makefile` / `Makefile.win` / `dist-src.mk` | ビルド用 |
+| `Makefile` / `Makefile.win` | ビルド用 |
+| `dist-src.mk` | ソース配布アーカイブの収録ファイル一覧と生成処理 |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows用アイコン |
 | `windows/windows-saved-games.ps1` | Windowsの「保存したゲーム」の場所の取得・3.6用フォルダ作成 |
 | `*.c` / `*.h` | ルートディレクトリのゲーム本体ソースコード |
@@ -166,7 +167,6 @@ make SAVEDIR=rogue-data/saves \
 | `windows/` | Windows専用のソースコードとアイコン関連ファイル |
 | `original-notes/` | オリジナルRogue 3.6の歴史的な付属資料（通常ビルドでは使用しません） |
 | `rogue_ja.html` / `rogue_en.html` | 「【運命の洞窟】への案内書」の日本語版／英語版（オフライン閲覧可） |
-| `tools/` | ソース配布アーカイブ作成用スクリプトと収録ファイル一覧 |
 | `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
 

@@ -108,14 +108,14 @@ make
 |---|---|
 | `rogue` | ビルド後のゲーム本体 |
 | `rogue.save` / `rogue.scr` / `rogue.lock` | セーブ／スコア／ロック |
-| `configure` / `Makefile` / `Makefile.win` / `dist-src.mk` | ビルドとインストール |
+| `configure` / `Makefile` / `Makefile.win` | ビルドとインストール |
+| `dist-src.mk` | ソース配布アーカイブの収録ファイル一覧と生成処理 |
 | `config.mk` / `config.log` | `configure`実行時に生成される設定・確認ログ |
 | `*.c` / `*.h` | ルートディレクトリのゲーム本体ソースコード |
 | `jec/` | JEC独自の共通機能（言語切り替え、Unicode文字列処理、画面表示補助など） |
 | `windows/` | Windows専用のソースコードとアイコン関連ファイル |
 | `original-notes/` | オリジナルRogue 3.6の歴史的な付属資料（通常ビルドでは使用しません） |
 | `rogue_ja.html` / `rogue_en.html` | 「【運命の洞窟】への案内書」の日本語版／英語版（オフライン閲覧可） |
-| `tools/` | ソース配布アーカイブ作成用スクリプトと収録ファイル一覧 |
 | `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
 

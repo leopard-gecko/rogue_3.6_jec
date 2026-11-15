@@ -335,7 +335,7 @@ str_input_byte(WINDOW *win)
 static int
 str_input_key(WINDOW *win)
 {
-#if defined(_WIN32) && defined(ROGUE_PDC_VT)
+#ifdef _WIN32
     if (rogue_windows_has_edit_input())
         return rogue_windows_edit_key();
 #endif
@@ -348,26 +348,11 @@ str_read_utf8_char(WINDOW *win, int first, char *out)
     int i, need, c;
 
 #ifdef _WIN32
-    /* VT: input is decoded as Unicode scalars from console UTF-16 events
-     * or mintty UTF-8 bytes.  Other Windows backends retain the previous
-     * byte/scalar behavior. */
-#if defined(ROGUE_PDC_VT)
+    /* Windows VT input is decoded as Unicode scalars from console
+     * UTF-16 events or mintty UTF-8 bytes. */
     if (first >= 0x80 && first <= 0x10ffff)
-#else
-    if (first > 255 && first <= 0x10ffff)
-#endif
     {
         unsigned int u = (unsigned int)first;
-#if !defined(ROGUE_PDC_VT)
-        if (u >= 0xd800 && u <= 0xdbff)
-        {
-            int low = str_input_byte(win);
-            if (low < 0xdc00 || low > 0xdfff)
-                return 0;
-            u = 0x10000u + ((u - 0xd800u) << 10)
-                + ((unsigned int)low - 0xdc00u);
-        }
-#endif
         if (u >= 0xd800 && u <= 0xdfff)
             return 0;
         if (u < 0x800)

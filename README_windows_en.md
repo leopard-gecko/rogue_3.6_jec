@@ -158,7 +158,8 @@ Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=
 |---|---|
 | `rogue.exe` | Built game executable |
 | `rogue.save` / `rogue.scr` / `rogue.lock` | Save / score / lock files |
-| `Makefile` / `Makefile.win` / `dist-src.mk` | Build files |
+| `Makefile` / `Makefile.win` | Build files |
+| `dist-src.mk` | Source distribution file list and archive creation |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows executable icon |
 | `windows/windows-saved-games.ps1` | Locate the Windows Saved Games folder and create its `Rogue/3.6` subfolder |
 | `*.c` / `*.h` | Core game source files in the top-level directory |
@@ -166,7 +167,6 @@ Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=
 | `windows/` | Windows-specific source files and icon resources |
 | `original-notes/` | Historical supporting files from the original Rogue 3.6 (not used in normal builds) |
 | `rogue_ja.html` / `rogue_en.html` | *A Guide to the Dungeons of Doom* (Japanese / English, available offline) |
-| `tools/` | Source archive script and file manifest |
 | `README.md` | Project overview and links to platform READMEs and dungeon guides |
 | `LICENSE.txt` | License |
 
