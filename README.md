@@ -25,14 +25,14 @@ macOS / Linuxでは通常 `make` を使用し、WindowsではMSYS2 UCRT64環境�
 
 ## 【運命の洞窟】への案内書 / A Guide to the Dungeons of Doom
 
-ゲームの操作、画面表示、道具、オプションなどは、日英の案内書にまとめています。HTMLファイルはWebブラウザーで開くことができ、インターネット接続は不要です。
+ゲームの操作、画面表示、道具、オプションなどは、日英の案内書にまとめています。HTMLファイルはWebブラウザーで、TXTファイルは等幅フォントのテキスト表示で閲覧できます。どちらもインターネット接続は不要です。
 
-*The Japanese and English dungeon guides describe the game, commands, items, and options. Both HTML files can be viewed offline in a web browser.*
+*The Japanese and English dungeon guides describe the game, commands, items, and options. The HTML guides can be viewed in a web browser, while the TXT versions are formatted for monospaced text. Both formats are available offline.*
 
-| 言語 / Language | HTML |
-| --- | --- |
-| 日本語 | [rogue_ja.html](rogue_ja.html) |
-| English | [rogue_en.html](rogue_en.html) |
+| 言語 / Language | HTML | TXT |
+| --- | --- | --- |
+| 日本語 | [rogue_ja.html](rogue_ja.html) | [rogue_ja.txt](rogue_ja.txt) |
+| English | [rogue_en.html](rogue_en.html) | [rogue_en.txt](rogue_en.txt) |
 
 [公開サイトの案内書](https://leopard-gecko.github.io/jrogue/guide.html?version=36)も利用できます。
 

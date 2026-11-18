@@ -116,6 +116,7 @@ make
 | `windows/` | Windows専用のソースコードとアイコン関連ファイル |
 | `original-notes/` | オリジナルRogue 3.6の歴史的な付属資料（通常ビルドでは使用しません） |
 | `rogue_ja.html` / `rogue_en.html` | 「【運命の洞窟】への案内書」の日本語版／英語版（オフライン閲覧可） |
+| `rogue_ja.txt` / `rogue_en.txt` | 同じ案内書の日本語版／英語版TXT（等幅フォント向け） |
 | `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
 

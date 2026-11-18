@@ -116,6 +116,7 @@ Individual filenames can be set with `./configure --savefile=NAME`, `--scorefile
 | `windows/` | Windows-specific source files and icon resources |
 | `original-notes/` | Historical supporting files from the original Rogue 3.6 (not used in normal builds) |
 | `rogue_ja.html` / `rogue_en.html` | *A Guide to the Dungeons of Doom* (Japanese / English, available offline) |
+| `rogue_ja.txt` / `rogue_en.txt` | Plain-text Japanese / English guides formatted for monospaced display |
 | `README.md` | Project overview and links to platform READMEs and dungeon guides |
 | `LICENSE.txt` | License |
 

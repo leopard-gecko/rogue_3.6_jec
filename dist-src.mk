@@ -56,7 +56,9 @@ DIST_SRC_FILES := \
     rip.c \
     rogue.h \
     rogue_en.html \
+    rogue_en.txt \
     rogue_ja.html \
+    rogue_ja.txt \
     rooms.c \
     save.c \
     scrolls.c \
