@@ -18,7 +18,7 @@ xcode-select --install
 
 ```sh
 sudo apt update
-sudo apt install build-essential libncurses-dev
+sudo apt install build-essential libncurses-dev libcrypt-dev
 ```
 
 **Fedora:** `sudo dnf install gcc make ncurses-devel libxcrypt-devel`  
