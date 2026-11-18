@@ -4,7 +4,7 @@ Rogueは、1980年頃に誕生した、文字や記号で描かれる迷宮を�
 
 **Rogue 3.6** は、1981年に広く普及した、現在入手できる最古のRogueのバージョンです。後のRogue 5.2や5.4とは異なる怪物、道具、ゲームの仕組みなど、初期のRogueならではの特徴が残されています。
 
-**Rogue 3.6 JEC** は、元のRogue 3.6のゲーム内容をできるだけ尊重しながら、日本語・英語の切り替え、日本語や絵文字の入出力、現代のOSへの対応、表示やセーブ処理の改善などを加えた修正版です。
+**Rogue 3.6 JEC** は、元のRogue 3.6のゲーム内容はそのままに、日本語・英語の切り替え、日本語や絵文字の入出力、現代のOSへの対応、表示やセーブ処理の改善などを加えた修正版です。
 
 *Rogue 3.6 JEC is a modified edition of one of the earliest surviving versions of Rogue. It preserves the original gameplay as closely as possible while adding Japanese/English language switching, UTF-8 text support, improvements to display and save handling, and compatibility with modern operating systems.*
 
