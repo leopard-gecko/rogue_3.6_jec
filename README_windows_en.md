@@ -171,7 +171,7 @@ Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=
 | `README.md` | Project overview and links to platform READMEs and dungeon guides |
 | `LICENSE.txt` | License |
 
-If you copy `rogue.exe` to another PC, include any required runtime DLLs. MSYS2 is only needed to build the source, not merely to launch an already-built executable.
+MSYS2 is only needed to build the source, not merely to launch an already-built executable.
 
 **Creating a source archive:** Run `make dist.src` to create `rogue36_004-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
 
