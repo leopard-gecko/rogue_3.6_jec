@@ -35,7 +35,7 @@ FILEDIR ?=
 # The absolute path is embedded at build time: never use for public binaries.
 # Do not invoke PowerShell for clean, distclean, or source archive creation.
 ifeq ($(strip $(FILEDIR)),saved-games)
-ifneq ($(filter-out clean distclean dist.src,$(if $(strip $(MAKECMDGOALS)),$(MAKECMDGOALS),all)),)
+ifneq ($(filter-out clean distclean dist.src dist.win,$(if $(strip $(MAKECMDGOALS)),$(MAKECMDGOALS),all)),)
 SAVED_GAMES_FILEDIR := $(shell powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ./windows/windows-saved-games.ps1)
 ifeq ($(strip $(SAVED_GAMES_FILEDIR)),)
 $(error Cannot resolve the Windows Saved Games known folder; check PowerShell and windows-saved-games.ps1)
@@ -157,6 +157,9 @@ clean:
 
 distclean: clean
 	@echo 'Windows build does not use ./configure or config.mk.'
+
+# Windows binary archive target: release documents are kept in windows/binary/.
+include dist-win.mk
 
 # Shared source archive target (also used by Makefile on Unix).
 include dist-src.mk

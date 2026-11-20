@@ -171,9 +171,20 @@ make SAVEDIR=rogue-data/saves \
 | `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
 
-作成した`rogue.exe`をほかのPCへコピーする場合は、必要な実行時DLLも一緒に用意してください。ソースコードをビルドしないで遊ぶだけなら、MSYS2の開発環境は不要です。
+ソースコードをビルドしないで遊ぶだけなら、MSYS2の開発環境は不要です。
 
 **ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_004-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
+
+**Windowsバイナリ配布ZIPの作成：** MSYS2 UCRT64で、別途`zip`コマンドをインストールしてから実行します。
+
+```sh
+pacman -S --needed zip
+make dist.win
+```
+
+`rogue36_004_windows.zip`が作成されます。通常の`make`は`rogue.exe`を作成しますが、`make dist.win`は配布用に`rogue36.exe`をビルドし、`windows/binary/`に収録された日英READMEと日英HTML案内書、`LICENSE.txt`とともに`Rogue 3.6/`フォルダーへまとめます。配布文書はGitHub Releasesの`v004`にあるWindows版ZIPを基準にしています。ソース版の案内書とREADMEは書き換えません。
+
+実行ファイル名を変更する場合は`make PROGRAM=別名 dist.win`を指定できます。配布用EXEはセーブ・スコア・ロックを起動時の作業フォルダーに保存します。`FILEDIR=saved-games`など特定のPCに固定された保存先は指定できません。同名ZIPが存在する場合は上書きせず終了します。
 
 ## 7. 著作権・ライセンス
 

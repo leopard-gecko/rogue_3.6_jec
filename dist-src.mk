@@ -23,6 +23,7 @@ DIST_SRC_FILES := \
     daemon.c \
     daemons.c \
     dist-src.mk \
+    dist-win.mk \
     fight.c \
     getpass.c \
     globals.c \
@@ -66,6 +67,10 @@ DIST_SRC_FILES := \
     things.c \
     vers.c \
     weapons.c \
+    windows/binary/README_ja.txt \
+    windows/binary/README_en.txt \
+    windows/binary/rogue_ja.html \
+    windows/binary/rogue_en.html \
     windows/rogue-icon.rc \
     windows/rogue.ico \
     windows/rogue_windows.c \

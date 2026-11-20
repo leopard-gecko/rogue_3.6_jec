@@ -84,6 +84,29 @@ for opt in "$@"; do
     esac
 done
 
+# Expand a leading ~/ at configuration time, rather than recording a
+# literal tilde in config.mk.  The arguments are commonly shell-quoted, so
+# the invoking shell will not perform tilde expansion for us.
+expand_home_path() {
+    case $1 in
+        '~'|'~/'*)
+            if [ -z "${HOME:-}" ]; then
+                echo "configure: HOME is required to expand ~ in a directory" >&2
+                exit 1
+            fi
+            case $1 in
+                '~') expanded_path=$HOME ;;
+                '~/'*) expanded_path=${HOME%/}/${1#\~/} ;;
+            esac ;;
+        *) expanded_path=$1 ;;
+    esac
+}
+
+expand_home_path "$FILEDIR"; FILEDIR=$expanded_path
+expand_home_path "$SAVEDIR"; SAVEDIR=$expanded_path
+expand_home_path "$SCOREDIR"; SCOREDIR=$expanded_path
+expand_home_path "$LOCKDIR"; LOCKDIR=$expanded_path
+
 if [ -n "$FILEDIR" ]; then
     if [ "$savedir_set" -eq 0 ]; then
         SAVEDIR=$FILEDIR

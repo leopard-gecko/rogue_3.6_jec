@@ -18,7 +18,7 @@ xcode-select --install
 
 ```sh
 sudo apt update
-sudo apt install build-essential libncurses-dev
+sudo apt install build-essential libncurses-dev libcrypt-dev
 ```
 
 **Fedora：** `sudo dnf install gcc make ncurses-devel libxcrypt-devel`  
@@ -99,6 +99,8 @@ mkdir -p "$HOME/Games/Rogue/saves" "$HOME/Games/Rogue/scores"
 make clean
 make
 ```
+
+ディレクトリは `--file-dir='~/Documents'` のように指定しても構いません。先頭の `~/` は `configure` 実行時にホームディレクトリへ展開されます。`--savedir`、`--scoredir`、`--lockdir` でも同様です。保存先のディレクトリは、事前に作成するか `make install` で作成してください。
 
 ファイル名は`./configure --savefile=NAME`、`--scorefile=NAME`、`--lockfile=NAME`で個別に指定できます。また、`make PROGRAM=NAME FILEDIR=DIR`または従来の`make PROG=NAME FILEDIR=DIR`も利用できます。両方を指定した場合は`PROG=`を優先します。`./configure --program=NAME`は設定を`config.mk`に保存しますが、`make PROGRAM=NAME`はその実行時だけ名前を変更します。設定を変更したら再ビルドしてください。
 
