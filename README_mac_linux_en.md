@@ -100,6 +100,8 @@ make clean
 make
 ```
 
+You can also use `--file-dir='~/Documents'`: `configure` expands a leading `~/` to the home directory. The same applies to `--savedir`, `--scoredir`, and `--lockdir`. Create the directories beforehand or use `make install` to create them.
+
 Individual filenames can be set with `./configure --savefile=NAME`, `--scorefile=NAME` and `--lockfile=NAME`. You can also use `make PROGRAM=NAME FILEDIR=DIR` or the existing `make PROG=NAME FILEDIR=DIR`. If both are specified, `PROG=` takes precedence. `./configure --program=NAME` saves the name in `config.mk`; `make PROGRAM=NAME` overrides it for that invocation only. Rebuild after changing these settings.
 
 ## 6. Files and distribution

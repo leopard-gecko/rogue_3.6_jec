@@ -50,7 +50,18 @@ ifneq ($(strip $(DEFAULT_LANGUAGE)),)
 LANGUAGE_CPPFLAGS = -DDEFAULT_LANGUAGE=$(DEFAULT_LANGUAGE)
 endif
 
-override CPPFLAGS += -I. -DROGUE_SAVEFILE=\"$(SAVEFILE)\" -DROGUE_SAVEDIR=\"$(SAVEDIR)\" -DROGUE_SCOREFILE=\"$(SCOREFILE)\" -DROGUE_SCOREDIR=\"$(SCOREDIR)\" -DROGUE_LOCKFILE=\"$(LOCKFILE)\" -DROGUE_LOCKDIR=\"$(LOCKDIR)\" $(LANGUAGE_CPPFLAGS) $(EXTRA_CPPFLAGS)
+# Quote the entire -D argument so paths containing spaces survive the
+# shell and the C compiler still receives a string-literal macro value.
+# unix_shell_quote also handles apostrophes in Unix home directory names.
+unix_shell_quote = '$(subst ','"'"',$(1))'
+override CPPFLAGS += -I. \
+    $(call unix_shell_quote,-DROGUE_SAVEFILE="$(SAVEFILE)") \
+    $(call unix_shell_quote,-DROGUE_SAVEDIR="$(SAVEDIR)") \
+    $(call unix_shell_quote,-DROGUE_SCOREFILE="$(SCOREFILE)") \
+    $(call unix_shell_quote,-DROGUE_SCOREDIR="$(SCOREDIR)") \
+    $(call unix_shell_quote,-DROGUE_LOCKFILE="$(LOCKFILE)") \
+    $(call unix_shell_quote,-DROGUE_LOCKDIR="$(LOCKDIR)") \
+    $(LANGUAGE_CPPFLAGS) $(EXTRA_CPPFLAGS)
 SRCS = armor.c chase.c command.c daemon.c daemons.c fight.c init.c io.c list.c main.c misc.c monsters.c move.c new_level.c options.c pack.c passages.c potions.c rings.c rip.c rooms.c save.c scrolls.c sticks.c things.c weapons.c wizard.c vers.c globals.c getpass.c jec/language.c jec/unicode_text.c jec/screen_text.c
 OBJS = $(SRCS:.c=.o)
 
@@ -64,9 +75,6 @@ $(PROG): $(OBJS)
 # Keep the stamp's timestamp unchanged when its contents are identical.
 .PHONY: FORCE_UNIX_CONFIG
 FORCE_UNIX_CONFIG:
-
-# Quote arbitrary flag strings safely for the shell (e.g. paths with spaces).
-unix_shell_quote = '$(subst ','"'"',$(1))'
 
 .unix-build-config: FORCE_UNIX_CONFIG
 	@printf '%s\n' \
@@ -98,19 +106,17 @@ wizard:
 
 install: $(PROG)
 	$(INSTALL) -d "$(DESTDIR)$(BINDIR)"
-	if [ -n "$(FILEDIR)" ]; then \
-		for d in "$(SAVEDIR)" "$(SCOREDIR)" "$(LOCKDIR)"; do \
-			case "$$d" in ""|.) continue ;; esac; \
-			case "$$d" in \
-				~) d="$$HOME" ;; \
-				~/*) d="$$HOME/$${d#~/}" ;; \
-			esac; \
-			case "$$d" in \
-				/*) $(INSTALL) -d "$(DESTDIR)$$d" ;; \
-				*)  $(INSTALL) -d "$$d" ;; \
-			esac; \
-		done; \
-	fi
+	@for d in "$(SAVEDIR)" "$(SCOREDIR)" "$(LOCKDIR)"; do \
+		case "$$d" in ""|.) continue ;; esac; \
+		case "$$d" in \
+			'~') d="$${HOME:?HOME is required for ~ paths}" ;; \
+			'~/'*) path=$${d#\~/}; d="$${HOME:?HOME is required for ~ paths}"; d="$${d%/}/$$path" ;; \
+		esac; \
+		case "$$d" in \
+			/*) $(INSTALL) -d "$(DESTDIR)$$d" ;; \
+			*)  $(INSTALL) -d "$$d" ;; \
+		esac; \
+	done
 	$(INSTALL) -m 0755 "$(PROG)" "$(DESTDIR)$(BINDIR)/$(PROG)"
 
 uninstall:
