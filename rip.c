@@ -208,7 +208,6 @@ void death(char monst)
     draw(stdscr);
     wait_for_window(stdscr, '\n');
     score(purse, 0, monst);
-    endwin();
     exit(0);
 }
 
