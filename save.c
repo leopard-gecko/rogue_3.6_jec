@@ -562,7 +562,6 @@ static int read_window(FILE *fp, WINDOW *win, int saved_lines, int saved_cols)
 
 static int save_snapshot(FILE *fp)
 {
-    int i;
     int saved_lines, saved_cols;
     int idx_weapon, idx_armor, idx_left, idx_right;
     char magic[sizeof RS_MAGIC];
@@ -650,14 +649,16 @@ static int save_snapshot(FILE *fp)
     if (!write_window(fp, stdscr)) return FALSE;
     if (!write_window(fp, cw)) return FALSE;
     if (!write_window(fp, mw)) return FALSE;
-    i = 0;
-    return write_int(fp, i);
+    /* This final int was zero in earlier PORTABLE-5 saves.  Reuse it for
+     * the A-Z genocide bitmask without changing the save file layout. */
+    return write_int(fp, (int) rogue_genocide_mask());
 }
 
 static int restore_snapshot(FILE *fp)
 {
     int obj_size, thing_size, saved_lines, saved_cols;
     int idx_weapon, idx_armor, idx_left, idx_right;
+    int genocide_mask;
     char magic[sizeof RS_MAGIC];
 
     if (!read_bytes(fp, magic, sizeof magic)) return FALSE;
@@ -764,6 +765,12 @@ static int restore_snapshot(FILE *fp)
     if (!read_window(fp, stdscr, saved_lines, saved_cols)) return FALSE;
     if (!read_window(fp, cw, saved_lines, saved_cols)) return FALSE;
     if (!read_window(fp, mw, saved_lines, saved_cols)) return FALSE;
+    /* Earlier PORTABLE-5 saves wrote zero here (no genocides).  Reject
+     * damaged masks rather than silently reviving or excluding monsters. */
+    if (!read_int(fp, &genocide_mask) ||
+        ((unsigned int)genocide_mask & ~((1U << 26) - 1U)) != 0)
+        return FALSE;
+    rogue_restore_genocide_mask((unsigned int)genocide_mask);
     clearok(cw, TRUE);
     touchwin(cw);
     draw(cw);

@@ -115,9 +115,6 @@ int rogue_winat(WINDOW *monster_win, WINDOW *screen_win, int y, int x);
 #ifndef ROGUE_SCOREDIR
 #define ROGUE_SCOREDIR "."
 #endif
-#ifndef ROGUE_LOCKDIR
-#define ROGUE_LOCKDIR "."
-#endif
 void rogue_delay_ms(int ms);
 void rogue_build_file_path(char *dst, size_t dstlen, const char *dir, const char *name);
 #define hero player.t_pos
@@ -608,6 +605,8 @@ int fallpos(coord *pos, coord *newpos, bool passages); void fatal(const char *s)
 int fight(coord *mp, char mn, struct object *weap, bool thrown); 
 struct linked_list * find_mons(int y, int x); struct linked_list * find_obj(int y, int x); 
 struct delayed_action * find_slot(void (*func)(int)); void fix_stick(struct object *cur); 
+unsigned int rogue_genocide_mask(void);
+void rogue_restore_genocide_mask(unsigned int mask);
 void fuse(void (*func)(int), int arg, int time, int type); void genocide(void); 
 int get_bool(void *vbp, WINDOW *win); int get_dir(void); 
 struct linked_list * get_item(const char *purpose, int type); int get_str(void *vopt, WINDOW *win); 

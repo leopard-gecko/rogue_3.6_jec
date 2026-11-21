@@ -15,6 +15,36 @@ static char lvl_mons[] =  "KJBSHEAOZGLCRQNYTWFIXUMVDP";
 static char wand_mons[] = "KJBSH AOZG CRQ Y W IXU V  ";
 
 /*
+ * The portable save stores genocided species as bits A=0 through Z=25.
+ * Derive the bits from the original generation table so genocide() remains
+ * the single place that changes the live monster selection rules.
+ */
+unsigned int rogue_genocide_mask(void)
+{
+    unsigned int mask = 0;
+    int c;
+
+    for (c = 'A'; c <= 'Z'; c++)
+        if (strchr(lvl_mons, c) == NULL)
+            mask |= 1U << (c - 'A');
+    return mask;
+}
+
+/* Apply the saved exclusions to both normal and wandering generation. */
+void rogue_restore_genocide_mask(unsigned int mask)
+{
+    int i;
+
+    for (i = 0; i < 26; i++)
+        if (lvl_mons[i] >= 'A' && lvl_mons[i] <= 'Z' &&
+            (mask & (1U << (lvl_mons[i] - 'A'))) != 0)
+        {
+            lvl_mons[i] = ' ';
+            wand_mons[i] = ' ';
+        }
+}
+
+/*
  * randmonster:
  *	Pick a monster to show up.  The lower the level,
  *	the meaner the monster.
