@@ -98,7 +98,7 @@ int rogue_winat(WINDOW *monster_win, WINDOW *screen_win, int y, int x);
 #define draw(window) wrefresh(window)
 #endif
 #ifndef ROGUE_ANIMATION_DELAY_MS
-#define ROGUE_ANIMATION_DELAY_MS 30
+#define ROGUE_ANIMATION_DELAY_MS 24
 #endif
 #ifndef ROGUE_STARTUP_DELAY_MS
 #define ROGUE_STARTUP_DELAY_MS 1000

@@ -12,6 +12,11 @@
  * use ordinary curses rendering through jec/unicode_output.h.
  */
 #ifdef _WIN32
+#include <windows.h>
+/* The Windows SDK also defines MOUSE_MOVED; leave the curses definition. */
+#ifdef MOUSE_MOVED
+#undef MOUSE_MOVED
+#endif
 #include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,9 +100,44 @@ void rogue_vt_repaint(WINDOW *win)
 
 int rogue_draw_utf8(WINDOW *win)
 {
-    int result = wrefresh(win);
+    static const char cursor_hide[] = "\033[?25l";
+    static const char cursor_show[] = "\033[?25h";
+    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode, written;
+    int vt_cursor = (output != NULL && output != INVALID_HANDLE_VALUE &&
+                     GetConsoleMode(output, &mode) &&
+                     (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0);
+    int result;
+
+    /* PDCursesMod's VT renderer writes text before returning the cursor
+     * to the window position.  Hide only the physical cursor during that
+     * short interval; keep the library's cursor position/visibility state
+     * unchanged so the cursor still rests on '@' between player moves.
+     *
+     * PDCursesMod writes through the CRT fd, while supplementary-plane
+     * glyph repaint uses stdio.  Flush around the Win32 writes to preserve
+     * the sequence hide -> draw/repaint -> show on Console Host and ConPTY.
+     */
+    if (vt_cursor)
+    {
+        fflush(stdout);
+        (void)WriteFile(output, cursor_hide,
+                        (DWORD)(sizeof cursor_hide - 1), &written, NULL);
+    }
+
+    result = wrefresh(win);
     if (result != ERR)
         rogue_vt_repaint(win);
+
+    /* Restore visibility even when wrefresh() fails.  We do not call
+     * curs_set(0): doing so would stop PDCursesMod from returning the
+     * physical cursor to the player/window position after the redraw. */
+    if (vt_cursor)
+    {
+        fflush(stdout);
+        (void)WriteFile(output, cursor_show,
+                        (DWORD)(sizeof cursor_show - 1), &written, NULL);
+    }
     return result;
 }
 
