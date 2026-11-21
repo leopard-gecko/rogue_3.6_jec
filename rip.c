@@ -9,6 +9,12 @@
  *	NUMTOP is defined in mach_dep.h.
  */
 
+/* _XOPEN_SOURCE=600 hides flock() and LOCK_* in the macOS SDK.
+ * Enable Darwin extensions for this translation unit only. */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
+
 #include <curses.h>
 #include <time.h>
 #include <signal.h>
@@ -17,89 +23,122 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
+#include <stdint.h>
 #else
 #include <pwd.h>
 #endif
 #include "mach_dep.h"
 #include "rogue.h"
 
-static int rogue_lock_fd = -1;
+/* The score file itself is the lock target; do not create .lock files.
+ * Keep the lock only while reading and writing the score data. */
+#define ROGUE_SCORE_LOCK_RETRIES 50  /* 50 * 100 ms = five seconds */
 
 #ifdef _WIN32
-/* An OS file lock, not an existence-based lock: safe across concurrent runs. */
-static HANDLE rogue_score_handle = INVALID_HANDLE_VALUE;
-static int rogue_score_lock_acquire(const char *path)
+static HANDLE rogue_score_lock_handle = INVALID_HANDLE_VALUE;
+static OVERLAPPED rogue_score_lock_overlapped;
+
+static int rogue_score_lock_acquire(FILE *outf)
 {
-    wchar_t *wide = rogue_windows_utf8_to_wide(path);
-    OVERLAPPED ov = {0};
-    if (wide == NULL)
-        return -1;
-    rogue_score_handle = CreateFileW(wide, GENERIC_READ | GENERIC_WRITE,
-                                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                    NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    free(wide);
-    if (rogue_score_handle == INVALID_HANDLE_VALUE)
-        return -1;
-    if (!LockFileEx(rogue_score_handle, LOCKFILE_EXCLUSIVE_LOCK,
-                    0, 1, 0, &ov))
+    intptr_t os_handle;
+    HANDLE handle;
+    DWORD error;
+    int attempt;
+
+    if (outf == NULL || _fileno(outf) < 0)
+        return FALSE;
+    os_handle = _get_osfhandle(_fileno(outf));
+    if (os_handle == -1)
+        return FALSE;
+    handle = (HANDLE)os_handle;
+    memset(&rogue_score_lock_overlapped, 0,
+           sizeof rogue_score_lock_overlapped);
+    for (attempt = 0; attempt <= ROGUE_SCORE_LOCK_RETRIES; attempt++)
     {
-        CloseHandle(rogue_score_handle);
-        rogue_score_handle = INVALID_HANDLE_VALUE;
-        return -1;
+        if (LockFileEx(handle, LOCKFILE_EXCLUSIVE_LOCK |
+                      LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0,
+                      &rogue_score_lock_overlapped))
+        {
+            rogue_score_lock_handle = handle;
+            return TRUE;
+        }
+        error = GetLastError();
+        if (error != ERROR_LOCK_VIOLATION && error != ERROR_IO_PENDING)
+        {
+            errno = EIO;
+            return FALSE;
+        }
+        if (attempt < ROGUE_SCORE_LOCK_RETRIES)
+            Sleep(100);
     }
-    return 1;
+    errno = EWOULDBLOCK;
+    return FALSE;
 }
-static void rogue_score_lock_release(int ignored)
+
+static void rogue_score_lock_release(FILE *outf)
 {
-    OVERLAPPED ov = {0};
-    (void)ignored;
-    if (rogue_score_handle != INVALID_HANDLE_VALUE)
+    (void)outf;
+    if (rogue_score_lock_handle != INVALID_HANDLE_VALUE)
     {
-        UnlockFileEx(rogue_score_handle, 0, 1, 0, &ov);
-        CloseHandle(rogue_score_handle);
-        rogue_score_handle = INVALID_HANDLE_VALUE;
+        (void)UnlockFileEx(rogue_score_lock_handle, 0, 1, 0,
+                           &rogue_score_lock_overlapped);
+        /* The FILE* owns this handle; do not close it here. */
+        rogue_score_lock_handle = INVALID_HANDLE_VALUE;
     }
 }
 #else
-static int rogue_score_lock_acquire(const char *lock_path)
+#include <sys/file.h>
+#include <sys/select.h>
+#include <sys/time.h>
+
+static int rogue_score_lock_acquire(FILE *outf)
 {
-    struct flock fl;
-    int fd;
+    int fd, attempt, error;
 
-    fd = open(lock_path, O_RDWR | O_CREAT, 0600);
-    if (fd < 0)
-        return -1;
-
-    fl.l_type = F_WRLCK;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-
-    if (fcntl(fd, F_SETLKW, &fl) < 0)
+    if (outf == NULL || (fd = fileno(outf)) < 0)
+        return FALSE;
+    for (attempt = 0; attempt <= ROGUE_SCORE_LOCK_RETRIES; attempt++)
     {
-        close(fd);
-        return -1;
+        if (flock(fd, LOCK_EX | LOCK_NB) == 0)
+            return TRUE;
+        error = errno;
+        if (error != EWOULDBLOCK && error != EAGAIN && error != EINTR)
+        {
+            errno = error;
+            return FALSE;
+        }
+        if (attempt < ROGUE_SCORE_LOCK_RETRIES)
+        {
+            struct timeval wait = { 0, 100000 };
+            (void)select(0, NULL, NULL, NULL, &wait);
+        }
     }
-
-    return fd;
+    errno = EWOULDBLOCK;
+    return FALSE;
 }
 
-static void rogue_score_lock_release(int fd)
+static void rogue_score_lock_release(FILE *outf)
 {
-    struct flock fl;
+    if (outf != NULL)
+        (void)flock(fileno(outf), LOCK_UN);
+}
+#endif /* _WIN32 */
 
-    if (fd < 0)
-        return;
-
-    fl.l_type = F_UNLCK;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-    (void) fcntl(fd, F_SETLK, &fl);
-    close(fd);
+/* Commit while locked and flush before making the score file available to
+ * another process.  Leave the existing on-disk score layout unchanged. */
+static void rogue_score_commit(FILE *outf, char *data, unsigned int size)
+{
+    int ok = fseek(outf, 0L, SEEK_SET) == 0;
+    if (ok)
+    {
+        encwrite(data, size, outf);
+        ok = fflush(outf) == 0 && !ferror(outf);
+    }
+    if (!ok)
+        fprintf(stderr, "%s\n", JSTR("スコアを書き込めませんでした。",
+                                      "Could not save the score."));
 }
 
-#endif /* _WIN32 */
 
 static char *rip[] = {
 "                       __________",
@@ -256,7 +295,8 @@ void score(int amount, int flags, char monst)
     register int prflags = 0;
     register int fd;
     char score_path[1024];
-    char lock_path[1024];
+    struct sc_ent deleted[NUMTOP];
+    int deleted_count = 0;
     static char *reason[] = {
 	"killed",
 	"quit",
@@ -264,46 +304,62 @@ void score(int amount, int flags, char monst)
     };
     if (flags != -1)
 	endwin();
-    /*
-     * Open file and read list
-     */
+    /* The original wizard prompt may wait for interactive input.  Get it
+     * before acquiring the lock, so other players can still post scores. */
+    signal(SIGINT, SIG_DFL);
+    if (wizard && flags != -1 && flags != 0)
+    {
+        printf("%s", JSTR("［リターンを押してください］", "[Press return to continue]"));
+        fflush(stdout);
+        fgets(prbuf, sizeof prbuf, stdin);
+        prbuf[strcspn(prbuf, "\n")] = '\0';
+    }
+    else
+        prbuf[0] = '\0';
+    if (wizard)
+    {
+        if (strcmp(prbuf, "names") == 0)
+            prflags = 1;
+        else if (strcmp(prbuf, "edit") == 0)
+            prflags = 2;
+    }
 
+    /* Open the scoreboard itself.  Exclusive first creation avoids a race
+     * between two processes starting with no score file. */
     rogue_build_file_path(score_path, sizeof score_path, SCOREDIR, SCOREFILE);
-    rogue_build_file_path(lock_path, sizeof lock_path, LOCKDIR, LOCKFILE);
-
-    rogue_lock_fd = rogue_score_lock_acquire(lock_path);
-    if (rogue_lock_fd < 0)
-	return;
-
 #ifdef _WIN32
-    /* A Saved Games path may contain UTF-8 Japanese user/profile names.
-     * Use the wide CRT open path, as the Windows file lock above already does. */
     {
         wchar_t *wide_score_path = rogue_windows_utf8_to_wide(score_path);
         fd = wide_score_path != NULL
-            ? _wopen(wide_score_path, O_RDWR | O_CREAT | O_BINARY, 0600)
+            ? _wopen(wide_score_path, O_RDWR | O_CREAT | O_EXCL | O_BINARY,
+                     0600)
             : -1;
+        if (fd < 0 && errno == EEXIST && wide_score_path != NULL)
+            fd = _wopen(wide_score_path, O_RDWR | O_BINARY, 0600);
         free(wide_score_path);
     }
     if (fd < 0)
-#else
-    if ((fd = open(score_path, O_RDWR | O_CREAT, 0600)) < 0)
-#endif
-    {
-	rogue_score_lock_release(rogue_lock_fd);
-	rogue_lock_fd = -1;
-	return;
-    }
-#ifdef _WIN32
+        return;
     outf = _fdopen(fd, "r+b");
 #else
-    outf = fdopen(fd, "w");
+    fd = open(score_path, O_RDWR | O_CREAT | O_EXCL, 0600);
+    if (fd < 0 && errno == EEXIST)
+        fd = open(score_path, O_RDWR);
+    if (fd < 0)
+        return;
+    outf = fdopen(fd, "r+b");
 #endif
     if (outf == NULL)
     {
         close(fd);
-        rogue_score_lock_release(rogue_lock_fd);
-        rogue_lock_fd = -1;
+        return;
+    }
+    if (!rogue_score_lock_acquire(outf))
+    {
+        fprintf(stderr, "%s: %s\n",
+                JSTR("スコアのロックを取得できませんでした",
+                     "Could not lock score file"), score_path);
+        fclose(outf);
         return;
     }
 
@@ -318,34 +374,6 @@ void score(int amount, int flags, char monst)
 	scp->sc_uid = RN;
     }
 
-    signal(SIGINT, SIG_DFL);
-    /*
-     * The original 3.6 score routine printed a bare
-     * "[Press return to continue]" before showing the score list for
-     * every non-death ending.  On modern curses this appears after
-     * leaving the alternate screen and looks like an accidental hang
-     * when the player quits with 'q'.
-     *
-     * Keep the prompt only for wizard score-list commands, where the
-     * typed response may be "names" or "edit".  Normal quit now goes
-     * straight to the score list.
-     */
-    if (wizard && flags != -1 && flags != 0)
-    {
-	printf("%s", JSTR("［リターンを押してください］", "[Press return to continue]"));
-	fflush(stdout);
-	fgets(prbuf, sizeof prbuf, stdin);
-	prbuf[strcspn(prbuf, "\n")] = '\0';
-    }
-    else
-	prbuf[0] = '\0';
-    if (wizard)
-    {
-	if (strcmp(prbuf, "names") == 0)
-	    prflags = 1;
-	else if (strcmp(prbuf, "edit") == 0)
-	    prflags = 2;
-    }
     encread((char *) top_ten, sizeof top_ten, fd);
     /*
      * Insert her in list if need be
@@ -374,6 +402,21 @@ void score(int amount, int flags, char monst)
 #endif
 	}
     }
+    /* Normal scoring is committed before displaying scores, so no lock is
+     * held during terminal output or the game-over Return-key wait.  Wizard
+     * editing uses a second, freshly locked read after collecting deletions. */
+    if (prflags != 2)
+    {
+        rogue_score_commit(outf, (char *)top_ten, sizeof top_ten);
+        rogue_score_lock_release(outf);
+        fclose(outf);
+        outf = NULL;
+    }
+    else
+    {
+        rogue_score_lock_release(outf);
+    }
+
     /*
      * Print the list
      */
@@ -437,6 +480,8 @@ void score(int amount, int flags, char monst)
 		prbuf[strcspn(prbuf, "\n")] = '\0';
 		if (prbuf[0] == 'd')
 		{
+                    if (deleted_count < NUMTOP)
+                        deleted[deleted_count++] = *scp;
 		    for (sc2 = scp; sc2 < &top_ten[NUMTOP-1]; sc2++)
 			*sc2 = *(sc2 + 1);
 		    top_ten[NUMTOP-1].sc_score = 0;
@@ -452,14 +497,49 @@ void score(int amount, int flags, char monst)
 		putchar('\n');
 	}
     }
-    fseek(outf, 0L, 0);
-    /*
-     * Update the list file
-     */
-    encwrite((char *) top_ten, sizeof top_ten, outf);
-    fclose(outf);
-    rogue_score_lock_release(rogue_lock_fd);
-    rogue_lock_fd = -1;
+    if (prflags == 2)
+    {
+        /* Another game may have updated the scoreboard while the wizard
+         * chose entries.  Re-read it under a new lock, and only delete
+         * records matching the entries actually displayed to the wizard. */
+        if (deleted_count > 0 && rogue_score_lock_acquire(outf))
+        {
+            struct sc_ent latest[NUMTOP];
+            int di, j, k, modified = FALSE;
+            if (fseek(outf, 0L, SEEK_SET) == 0 &&
+                encread((char *)latest, sizeof latest, fd) == sizeof latest)
+            {
+                for (di = 0; di < deleted_count; di++)
+                    for (j = 0; j < NUMTOP; j++)
+                        if (latest[j].sc_score == deleted[di].sc_score &&
+                            latest[j].sc_flags == deleted[di].sc_flags &&
+                            latest[j].sc_level == deleted[di].sc_level &&
+                            latest[j].sc_uid == deleted[di].sc_uid &&
+                            latest[j].sc_monster == deleted[di].sc_monster &&
+                            memcmp(latest[j].sc_name, deleted[di].sc_name,
+                                   sizeof latest[j].sc_name) == 0)
+                        {
+                            for (k = j; k < NUMTOP - 1; k++)
+                                latest[k] = latest[k + 1];
+                            memset(&latest[NUMTOP - 1], 0,
+                                   sizeof latest[NUMTOP - 1]);
+                            modified = TRUE;
+                            break;
+                        }
+                if (modified)
+                    rogue_score_commit(outf, (char *)latest, sizeof latest);
+            }
+            else
+                fprintf(stderr, "%s\n", JSTR("スコアを読み直せませんでした。",
+                                             "Could not re-read the score."));
+            rogue_score_lock_release(outf);
+        }
+        else if (deleted_count > 0)
+            fprintf(stderr, "%s: %s\n",
+                    JSTR("スコアのロックを取得できませんでした",
+                         "Could not lock score file"), score_path);
+        fclose(outf);
+    }
 #ifdef _WIN32
     rogue_windows_wait_for_score_exit(JSTR("［リターンを押すと終了します］",
                                           "[Press return to exit]"));
