@@ -109,7 +109,7 @@ export ROGUEOPTS='terse'
 
 ## 5. セーブ・スコアなどの保存先
 
-標準ではセーブ **`rogue.save`**、スコア **`rogue.scr`**、ロック **`rogue.lock`** はゲーム起動時の作業フォルダに置かれます。実行ファイル名を変えると、既定のデータファイル名も連動します。
+標準ではセーブ **`rogue.save`**、スコア **`rogue.scr`** はゲーム起動時の作業フォルダに置かれます。実行ファイル名を変えると、既定のデータファイル名も連動します。
 
 **3種類のファイルを同じフォルダにまとめる例：**
 
@@ -136,7 +136,7 @@ make clean
 make FILEDIR=saved-games
 ```
 
-Windowsの「保存したゲーム」（Saved Games）の実際の保存先を取得し、その下の `Rogue/3.6` フォルダにセーブ・スコア・ロックファイルを保存します。5.4版のセーブファイルやスコアと混在しないよう、3.6専用のフォルダを使用します。保存先が変更・移動されていても取得でき、フォルダがなければビルド時に自動作成します。この機能には **MSYS2 UCRT64とPowerShell** が必要です。
+Windowsの「保存したゲーム」（Saved Games）の実際の保存先を取得し、その下の `Rogue/3.6` フォルダにセーブ・スコアファイルを保存します。5.4版のセーブファイルやスコアと混在しないよう、3.6専用のフォルダを使用します。保存先が変更・移動されていても取得でき、フォルダがなければビルド時に自動作成します。この機能には **MSYS2 UCRT64とPowerShell** が必要です。
 
 **注意：この設定ではビルドしたユーザーの絶対パスがEXEに埋め込まれます。別のPCへ配布する実行ファイルでは `FILEDIR=saved-games` を使用せず、`FILEDIR` を指定しない通常ビルドにしてください。**
 
@@ -146,18 +146,17 @@ Windowsの「保存したゲーム」（Saved Games）の実際の保存先を�
 mkdir -p rogue-data/saves rogue-data/scores
 make clean
 make SAVEDIR=rogue-data/saves \
-     SCOREDIR=rogue-data/scores \
-     LOCKDIR=rogue-data/scores
+     SCOREDIR=rogue-data/scores
 ```
 
-ファイル名は `SAVEFILE=NAME`、`SCOREFILE=NAME`、`LOCKFILE=NAME` で変更できます。`SAVEDIR=DIR`、`SCOREDIR=DIR`、`LOCKDIR=DIR` を個別に指定した場合は、対応する保存先について `FILEDIR` より優先されます。保存先やファイル名を変更した場合は再ビルドしてください。相対パスはゲーム起動時の作業フォルダを基準にします。
+ファイル名は `SAVEFILE=NAME`、`SCOREFILE=NAME` で変更できます。`SAVEDIR=DIR`、`SCOREDIR=DIR` を個別に指定した場合は、対応する保存先について `FILEDIR` より優先されます。保存先やファイル名を変更した場合は再ビルドしてください。相対パスはゲーム起動時の作業フォルダを基準にします。
 
 ## 6. 配布ファイルと説明書
 
 | ファイル | 用途 |
 |---|---|
 | `rogue.exe` | ビルド後のゲーム本体 |
-| `rogue.save` / `rogue.scr` / `rogue.lock` | セーブ／スコア／ロック |
+| `rogue.save` / `rogue.scr` | セーブ／スコア |
 | `Makefile` / `Makefile.win` | ビルド用 |
 | `dist-src.mk` | ソース配布アーカイブの収録ファイル一覧と生成処理 |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows用アイコン |
@@ -173,7 +172,7 @@ make SAVEDIR=rogue-data/saves \
 
 ソースコードをビルドしないで遊ぶだけなら、MSYS2の開発環境は不要です。
 
-**ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_004-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
+**ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_005-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
 
 **Windowsバイナリ配布ZIPの作成：** MSYS2 UCRT64で、別途`zip`コマンドをインストールしてから実行します。
 
@@ -182,9 +181,9 @@ pacman -S --needed zip
 make dist.win
 ```
 
-`rogue36_004_windows.zip`が作成されます。通常の`make`は`rogue.exe`を作成しますが、`make dist.win`は配布用に`rogue36.exe`をビルドし、`windows/binary/`に収録された日英READMEと日英HTML案内書、`LICENSE.txt`とともに`Rogue 3.6/`フォルダーへまとめます。配布文書はGitHub Releasesの`v004`にあるWindows版ZIPを基準にしています。ソース版の案内書とREADMEは書き換えません。
+`rogue36_005_windows.zip`が作成されます。通常の`make`は`rogue.exe`を作成しますが、`make dist.win`は配布用に`rogue36.exe`をビルドし、`windows/binary/`に収録された日英READMEと日英HTML案内書、`LICENSE.txt`とともに`Rogue 3.6/`フォルダーへまとめます。配布文書はGitHub Releasesの`v004`にあるWindows版ZIPを基準にしています。ソース版の案内書とREADMEは書き換えません。
 
-実行ファイル名を変更する場合は`make PROGRAM=別名 dist.win`を指定できます。配布用EXEはセーブ・スコア・ロックを起動時の作業フォルダーに保存します。`FILEDIR=saved-games`など特定のPCに固定された保存先は指定できません。同名ZIPが存在する場合は上書きせず終了します。
+実行ファイル名を変更する場合は`make PROGRAM=別名 dist.win`を指定できます。配布用EXEはセーブ・スコアを起動時の作業フォルダーに保存します。`FILEDIR=saved-games`など特定のPCに固定された保存先は指定できません。同名ZIPが存在する場合は上書きせず終了します。
 
 ## 7. 著作権・ライセンス
 

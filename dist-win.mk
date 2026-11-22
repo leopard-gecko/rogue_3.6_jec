@@ -1,7 +1,7 @@
-# Windows binary distribution (MSYS2 UCRT64): match the v004 release layout.
+# Windows binary distribution (MSYS2 UCRT64): retain the established release layout.
 # The README and HTML guides are the original end-user documents from the
 # published GitHub Release; source HTML and platform READMEs stay untouched.
-DIST_WIN_NAME ?= rogue36_004_windows
+DIST_WIN_NAME ?= rogue36_005_windows
 DIST_WIN_FILE ?= $(DIST_WIN_NAME).zip
 
 # make dist.win uses rogue36.exe by default even though plain make builds
@@ -31,9 +31,8 @@ dist.win:
 	esac; \
 	if [ -n "$(strip $(FILEDIR))" ] || \
 	   { [ "$(SAVEDIR)" != "." ] && [ -n "$(SAVEDIR)" ]; } || \
-	   { [ "$(SCOREDIR)" != "." ] && [ -n "$(SCOREDIR)" ]; } || \
-	   { [ "$(LOCKDIR)" != "." ] && [ -n "$(LOCKDIR)" ]; }; then \
-		echo 'dist.win: FILEDIR and non-default save/score/lock paths are not allowed in portable binaries' >&2; \
+	   { [ "$(SCOREDIR)" != "." ] && [ -n "$(SCOREDIR)" ]; }; then \
+		echo 'dist.win: FILEDIR and non-default save/score paths are not allowed in portable binaries' >&2; \
 		exit 1; \
 	fi; \
 	output_dir=$$(dirname "$$output"); \
@@ -54,9 +53,8 @@ dist.win:
 		echo 'dist.win: LICENSE.txt is missing or a symbolic link' >&2; exit 1; \
 	fi; \
 	$(MAKE) -f Makefile.win all PROG="$$program" \
-		FILEDIR= SAVEDIR=. SCOREDIR=. LOCKDIR=. \
-		SAVEFILE="$$program.save" SCOREFILE="$$program.scr" \
-		LOCKFILE="$$program.lock"; \
+		FILEDIR= SAVEDIR=. SCOREDIR=. \
+		SAVEFILE="$$program.save" SCOREFILE="$$program.scr"; \
 	if [ ! -f "$$program.exe" ]; then \
 		echo "dist.win: executable not found: $$program.exe" >&2; exit 1; \
 	fi; \

@@ -47,13 +47,11 @@ else
 RESOLVED_FILEDIR := $(FILEDIR)
 endif
 
-# Explicit SAVEDIR/SCOREDIR/LOCKDIR take precedence over FILEDIR.
+# Explicit SAVEDIR/SCOREDIR take precedence over FILEDIR.
 SAVEFILE ?= $(PROG).save
 SAVEDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
 SCOREFILE ?= $(PROG).scr
 SCOREDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
-LOCKFILE ?= $(PROG).lock
-LOCKDIR ?= $(if $(RESOLVED_FILEDIR),$(RESOLVED_FILEDIR),.)
 CFLAGS ?= -std=gnu89 -O2 -g -Wall -Wextra
 USER_CPPFLAGS := $(CPPFLAGS)
 EXTRA_CPPFLAGS ?=
@@ -68,8 +66,6 @@ override CPPFLAGS := -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 \
     -DROGUE_SAVEDIR=$(call shell_quote,"$(SAVEDIR)") \
     -DROGUE_SCOREFILE=$(call shell_quote,"$(SCOREFILE)") \
     -DROGUE_SCOREDIR=$(call shell_quote,"$(SCOREDIR)") \
-    -DROGUE_LOCKFILE=$(call shell_quote,"$(LOCKFILE)") \
-    -DROGUE_LOCKDIR=$(call shell_quote,"$(LOCKDIR)") \
     -DDEFAULT_LANGUAGE=$(DEFAULT_LANGUAGE) $(USER_CPPFLAGS) $(EXTRA_CPPFLAGS)
 ifeq ($(WIZARD),1)
 override CPPFLAGS += -DWIZARD

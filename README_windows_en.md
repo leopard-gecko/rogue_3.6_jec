@@ -1,6 +1,6 @@
 # Rogue 3.6 — Windows (English)
 
-This document explains how to build and run Rogue 3.6 JEC on **Windows 10 / 11**, including environment variables and save, score, and lock file locations. For an introduction to Rogue 3.6 and JEC, and links to all platform guides, see the [repository README](README.md). For gameplay, commands, items, and options, see the included [*A Guide to the Dungeons of Doom*](rogue_en.html).
+This document explains how to build and run Rogue 3.6 JEC on **Windows 10 / 11**, including environment variables and save and score file locations. For an introduction to Rogue 3.6 and JEC, and links to all platform guides, see the [repository README](README.md). For gameplay, commands, items, and options, see the included [*A Guide to the Dungeons of Doom*](rogue_en.html).
 
 日本語版：[README_windows_ja.md](README_windows_ja.md)
 
@@ -107,11 +107,11 @@ These settings apply to the current terminal and programs launched from it. They
 
 Remove `ROGUEOPTS` from the same dialog if it is no longer needed. File locations such as `FILEDIR` are build-time settings, not environment variables for the game.
 
-## 5. Save, score and lock file locations
+## 5. Save and score file locations
 
-By default, **`rogue.save`**, **`rogue.scr`** and **`rogue.lock`** are placed in the game's working directory. Changing the executable name also changes the default data filenames.
+By default, **`rogue.save`** and **`rogue.scr`** are placed in the game's working directory. Changing the executable name also changes the default data filenames.
 
-**Keep all three files in one directory:**
+**Keep both files in one directory:**
 
 ```sh
 mkdir -p rogue-data
@@ -136,7 +136,7 @@ make clean
 make FILEDIR=saved-games
 ```
 
-This resolves the current user's actual Windows Saved Games folder (including redirection) and saves the game, score and lock files in its `Rogue/3.6` subfolder. This keeps Rogue 3.6 save and score files separate from Rogue 5.4.5. The directory is created automatically if necessary. **MSYS2 UCRT64 and PowerShell** are required for this option.
+This resolves the current user's actual Windows Saved Games folder (including redirection) and saves the game and score files in its `Rogue/3.6` subfolder. This keeps Rogue 3.6 save and score files separate from Rogue 5.4.5. The directory is created automatically if necessary. **MSYS2 UCRT64 and PowerShell** are required for this option.
 
 **Important: The builder's absolute directory path is embedded in the EXE. Do not use `FILEDIR=saved-games` when building binaries for distribution to other PCs; leave `FILEDIR` unset instead.**
 
@@ -146,18 +146,17 @@ This resolves the current user's actual Windows Saved Games folder (including re
 mkdir -p rogue-data/saves rogue-data/scores
 make clean
 make SAVEDIR=rogue-data/saves \
-     SCOREDIR=rogue-data/scores \
-     LOCKDIR=rogue-data/scores
+     SCOREDIR=rogue-data/scores
 ```
 
-Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=NAME`. The directory overrides `SAVEDIR=DIR`, `SCOREDIR=DIR` and `LOCKDIR=DIR` take precedence over `FILEDIR` for their respective files. Rebuild after changing any of these settings. Relative paths are resolved from the game's working directory.
+Set filenames individually with `SAVEFILE=NAME` and `SCOREFILE=NAME`. The directory overrides `SAVEDIR=DIR` and `SCOREDIR=DIR` take precedence over `FILEDIR` for their respective files. Rebuild after changing any of these settings. Relative paths are resolved from the game's working directory.
 
 ## 6. Files and distribution
 
 | File | Purpose |
 |---|---|
 | `rogue.exe` | Built game executable |
-| `rogue.save` / `rogue.scr` / `rogue.lock` | Save / score / lock files |
+| `rogue.save` / `rogue.scr` | Save / score files |
 | `Makefile` / `Makefile.win` | Build files |
 | `dist-src.mk` | Source distribution file list and archive creation |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows executable icon |
@@ -173,7 +172,7 @@ Set filenames individually with `SAVEFILE=NAME`, `SCOREFILE=NAME` and `LOCKFILE=
 
 MSYS2 is only needed to build the source, not merely to launch an already-built executable.
 
-**Creating a source archive:** Run `make dist.src` to create `rogue36_004-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
+**Creating a source archive:** Run `make dist.src` to create `rogue36_005-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
 
 **Create a Windows binary distribution ZIP:** Install the optional `zip` tool in MSYS2 UCRT64 and run:
 
@@ -182,9 +181,9 @@ pacman -S --needed zip
 make dist.win
 ```
 
-This generates `rogue36_004_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English README and HTML guides from `windows/binary/`, plus `LICENSE.txt`. The included documents are taken from the Windows ZIP published under GitHub Releases `v004`; the source guides and READMEs are not rewritten.
+This generates `rogue36_005_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English README and HTML guides from `windows/binary/`, plus `LICENSE.txt`. The included documents are taken from the Windows ZIP published under GitHub Releases `v004`; the source guides and READMEs are not rewritten.
 
-Use `make PROGRAM=another-name dist.win` to choose a different executable name. Distribution binaries store their save, score, and lock files relative to the working directory; machine-specific paths such as `FILEDIR=saved-games` are not accepted. Existing ZIP files are never overwritten.
+Use `make PROGRAM=another-name dist.win` to choose a different executable name. Distribution binaries store their save and score files relative to the working directory; machine-specific paths such as `FILEDIR=saved-games` are not accepted. Existing ZIP files are never overwritten.
 
 ## 7. Copyright and license
 

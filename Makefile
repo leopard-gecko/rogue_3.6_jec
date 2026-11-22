@@ -24,8 +24,6 @@ SAVEFILE ?= $(PROG).save
 SAVEDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
 SCOREFILE ?= $(PROG).scr
 SCOREDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
-LOCKFILE ?= $(PROG).lock
-LOCKDIR ?= $(if $(FILEDIR),$(FILEDIR),.)
 CFLAGS ?= -std=gnu89 -Wall -Wextra -Werror
 CPPFLAGS ?= -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600
 EXTRA_CPPFLAGS ?=
@@ -59,8 +57,6 @@ override CPPFLAGS += -I. \
     $(call unix_shell_quote,-DROGUE_SAVEDIR="$(SAVEDIR)") \
     $(call unix_shell_quote,-DROGUE_SCOREFILE="$(SCOREFILE)") \
     $(call unix_shell_quote,-DROGUE_SCOREDIR="$(SCOREDIR)") \
-    $(call unix_shell_quote,-DROGUE_LOCKFILE="$(LOCKFILE)") \
-    $(call unix_shell_quote,-DROGUE_LOCKDIR="$(LOCKDIR)") \
     $(LANGUAGE_CPPFLAGS) $(EXTRA_CPPFLAGS)
 SRCS = armor.c chase.c command.c daemon.c daemons.c fight.c init.c io.c list.c main.c misc.c monsters.c move.c new_level.c options.c pack.c passages.c potions.c rings.c rip.c rooms.c save.c scrolls.c sticks.c things.c weapons.c wizard.c vers.c globals.c getpass.c jec/language.c jec/unicode_text.c jec/screen_text.c
 OBJS = $(SRCS:.c=.o)
@@ -101,12 +97,12 @@ original:
 	$(MAKE) all DEFAULT_LANGUAGE=2 EXTRA_CPPFLAGS="$(EXTRA_CPPFLAGS)"
 
 wizard:
-	$(MAKE) clean PROG="$(PROG)" FILEDIR="$(FILEDIR)" SAVEFILE="$(SAVEFILE)" SAVEDIR="$(SAVEDIR)" SCOREFILE="$(SCOREFILE)" SCOREDIR="$(SCOREDIR)" LOCKFILE="$(LOCKFILE)" LOCKDIR="$(LOCKDIR)"
-	$(MAKE) PROG="$(PROG)" FILEDIR="$(FILEDIR)" SAVEFILE="$(SAVEFILE)" SAVEDIR="$(SAVEDIR)" SCOREFILE="$(SCOREFILE)" SCOREDIR="$(SCOREDIR)" LOCKFILE="$(LOCKFILE)" LOCKDIR="$(LOCKDIR)" EXTRA_CPPFLAGS="$(EXTRA_CPPFLAGS) -DWIZARD"
+	$(MAKE) clean PROG="$(PROG)" FILEDIR="$(FILEDIR)" SAVEFILE="$(SAVEFILE)" SAVEDIR="$(SAVEDIR)" SCOREFILE="$(SCOREFILE)" SCOREDIR="$(SCOREDIR)"
+	$(MAKE) PROG="$(PROG)" FILEDIR="$(FILEDIR)" SAVEFILE="$(SAVEFILE)" SAVEDIR="$(SAVEDIR)" SCOREFILE="$(SCOREFILE)" SCOREDIR="$(SCOREDIR)" EXTRA_CPPFLAGS="$(EXTRA_CPPFLAGS) -DWIZARD"
 
 install: $(PROG)
 	$(INSTALL) -d "$(DESTDIR)$(BINDIR)"
-	@for d in "$(SAVEDIR)" "$(SCOREDIR)" "$(LOCKDIR)"; do \
+	@for d in "$(SAVEDIR)" "$(SCOREDIR)"; do \
 		case "$$d" in ""|.) continue ;; esac; \
 		case "$$d" in \
 			'~') d="$${HOME:?HOME is required for ~ paths}" ;; \

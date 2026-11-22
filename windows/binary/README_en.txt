@@ -78,7 +78,6 @@ The default filenames are:
 
   Save file         rogue36.save
   Score file        rogue36.scr
-  Lock file         rogue36.lock
 
 These files are normally created in the working directory at startup.
 When started directly from File Explorer, that is usually the folder

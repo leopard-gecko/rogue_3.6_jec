@@ -125,13 +125,7 @@ void ring_off(void)
 	return;
     }
     if (dropcheck(obj))
-    {
-	/* English has no inventory-letter placeholder. */
-	if (jrogue_lang_is_japanese)
-	    msg("%s(%c)をはずした。", inv_name(obj, TRUE), pack_char(obj));
-	else
-	    msg("Was wearing %s", inv_name(obj, TRUE));
-    }
+	msg(JSTR("%sをはずした。", "Was wearing %s"), inv_name(obj, TRUE));
 }
 
 int gethand(void)

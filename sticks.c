@@ -180,9 +180,9 @@ void do_zap(bool gotdir)
 	    if (item != NULL && !save_throw(VS_MAGIC, (struct thing *) ldata(item)))
 		    hit_monster(unc(bolt.o_pos), &bolt);
 	    else if (terse)
-		msg(JSTR("ミサイルは消えた。", "Missle vanishes"));
+		msg(JSTR("ミサイルは消えた。", "Missile vanishes"));
 	    else
-		msg(JSTR("ミサイルは煙とともに消えた。", "The missle vanishes with a puff of smoke"));
+		msg(JSTR("ミサイルは煙とともに消えた。", "The missile vanishes with a puff of smoke"));
 	    ws_know[WS_MISSILE] = TRUE;
 	}
 	when WS_HIT:
@@ -247,7 +247,8 @@ void do_zap(bool gotdir)
 	case WS_FIRE:
 	case WS_COLD:
 	{
-	    register char dirch = '/', ch, *name;
+	    register char dirch = '/', ch;
+	    register const char *name;
 	    register bool bounced, used;
 	    coord pos;
 	    coord spotpos[BOLT_LENGTH];
@@ -267,11 +268,11 @@ void do_zap(bool gotdir)
 	    bounced = FALSE;
 	    used = FALSE;
 	    if (obj->o_which == WS_ELECT)
-		name = "bolt";
+		name = JSTR("電撃", "bolt");
 	    else if (obj->o_which == WS_FIRE)
-		name = "flame";
+		name = JSTR("炎", "flame");
 	    else
-		name = "ice";
+		name = JSTR("冷気", "ice");
 	    for (y = 0; y < BOLT_LENGTH && !used; y++)
 	    {
 		ch = winat(pos.y, pos.x);

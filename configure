@@ -10,11 +10,8 @@ SAVEFILE='$(PROG).save'
 SAVEDIR='.'
 SCOREFILE='$(PROG).scr'
 SCOREDIR='.'
-LOCKFILE='$(PROG).lock'
-LOCKDIR='.'
 savedir_set=0
 scoredir_set=0
-lockdir_set=0
 CFLAGS='-std=gnu89 -Wall -Wextra -Werror'
 CPPFLAGS='-D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600'
 LDLIBS=''
@@ -29,14 +26,12 @@ Options:
   --program=NAME          executable name (default: rogue)
   --prefix=DIR            installation prefix (default: /usr/local)
   --bindir=DIR            executable install directory (default: \$(prefix)/bin)
-  --file-dir=DIR          common directory for save, score, and lock files
+  --file-dir=DIR          common directory for save and score files
                           make install creates this directory if needed
   --savefile=NAME         save file name (default: \$(PROG).save)
   --savedir=DIR           directory for simple save file names (default: .)
   --scorefile=NAME        score file name (default: \$(PROG).scr)
   --scoredir=DIR          score file directory (default: .)
-  --lockfile=NAME         score lock file name (default: \$(PROG).lock)
-  --lockdir=DIR           score lock file directory (default: .)
   --cc=CC                 C compiler (default: cc or CC environment variable)
   --cflags=FLAGS          C compiler flags
   --cppflags=FLAGS        C preprocessor flags
@@ -65,8 +60,6 @@ for opt in "$@"; do
         --savedir=*) SAVEDIR=${opt#*=}; savedir_set=1 ;;
         --scorefile=*) SCOREFILE=${opt#*=} ;;
         --scoredir=*) SCOREDIR=${opt#*=}; scoredir_set=1 ;;
-        --lockfile=*) LOCKFILE=${opt#*=} ;;
-        --lockdir=*) LOCKDIR=${opt#*=}; lockdir_set=1 ;;
         --cc=*) CC=${opt#*=} ;;
         --cflags=*) CFLAGS=${opt#*=} ;;
         --cppflags=*) CPPFLAGS=${opt#*=} ;;
@@ -105,7 +98,6 @@ expand_home_path() {
 expand_home_path "$FILEDIR"; FILEDIR=$expanded_path
 expand_home_path "$SAVEDIR"; SAVEDIR=$expanded_path
 expand_home_path "$SCOREDIR"; SCOREDIR=$expanded_path
-expand_home_path "$LOCKDIR"; LOCKDIR=$expanded_path
 
 if [ -n "$FILEDIR" ]; then
     if [ "$savedir_set" -eq 0 ]; then
@@ -113,9 +105,6 @@ if [ -n "$FILEDIR" ]; then
     fi
     if [ "$scoredir_set" -eq 0 ]; then
         SCOREDIR=$FILEDIR
-    fi
-    if [ "$lockdir_set" -eq 0 ]; then
-        LOCKDIR=$FILEDIR
     fi
 fi
 
@@ -171,8 +160,6 @@ SAVEFILE = $SAVEFILE
 SAVEDIR = $SAVEDIR
 SCOREFILE = $SCOREFILE
 SCOREDIR = $SCOREDIR
-LOCKFILE = $LOCKFILE
-LOCKDIR = $LOCKDIR
 CFLAGS = $CFLAGS
 CPPFLAGS = $CPPFLAGS
 LDLIBS = $LDLIBS
@@ -191,7 +178,6 @@ if [ -n "$FILEDIR" ]; then
 fi
 echo "  SAVE      = $SAVEDIR/$SAVEFILE"
 echo "  SCORE     = $SCOREDIR/$SCOREFILE"
-echo "  LOCK      = $LOCKDIR/$LOCKFILE"
 echo "  LDLIBS    = $LDLIBS"
 case "$DEFAULT_LANGUAGE" in
     1) echo "  LANGUAGE  = ja" ;;

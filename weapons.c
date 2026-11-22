@@ -256,13 +256,9 @@ bad:
     if (is_current(obj))
         goto bad;
 
-    /* Japanese formats need the inventory letter; English formats do not. */
-    if (jrogue_lang_is_japanese)
-	msg(terse ? "%s (%c)に持ちかえた。" : "武器を%s (%c)に持ちかえた。",
-	    inv_name(obj, TRUE), pack_char(obj));
-    else
-	msg(terse ? "Wielding %s" : "You are now wielding %s",
-	    inv_name(obj, TRUE));
+    msg(terse ? JSTR("%sに持ちかえた。", "Wielding %s")
+              : JSTR("武器を%sに持ちかえた。", "You are now wielding %s"),
+        inv_name(obj, TRUE));
     cur_weapon = obj;
 }
 

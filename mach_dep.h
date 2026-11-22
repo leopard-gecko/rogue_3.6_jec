@@ -4,7 +4,7 @@
  * %G% (Berkeley) %W%
  */
 /*
- * where scorefile and lockfile should live
+ * where the scorefile should live
  */
 #ifndef ROGUE_SCOREFILE
 #define ROGUE_SCOREFILE "rogue36.scr"
@@ -12,16 +12,8 @@
 #ifndef ROGUE_SCOREDIR
 #define ROGUE_SCOREDIR "."
 #endif
-#ifndef ROGUE_LOCKFILE
-#define ROGUE_LOCKFILE "rogue36.lock"
-#endif
-#ifndef ROGUE_LOCKDIR
-#define ROGUE_LOCKDIR "."
-#endif
 #define SCOREFILE ROGUE_SCOREFILE
 #define SCOREDIR ROGUE_SCOREDIR
-#define LOCKFILE ROGUE_LOCKFILE
-#define LOCKDIR ROGUE_LOCKDIR
 #define	NUMTOP		20
 
 /*

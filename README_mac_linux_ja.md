@@ -76,7 +76,7 @@ sudo make install
 
 ## 5. セーブ・スコアなどの保存先
 
-指定しなければ、セーブ **`rogue.save`**、スコア **`rogue.scr`**、ロック **`rogue.lock`** はゲーム起動時の作業フォルダに置かれます。実行ファイル名を変えると、これらの既定名も連動します。
+指定しなければ、セーブ **`rogue.save`**、スコア **`rogue.scr`** はゲーム起動時の作業フォルダに置かれます。実行ファイル名を変えると、これらの既定名も連動します。
 
 **3種類のファイルを同じフォルダにまとめる例：**
 
@@ -89,27 +89,26 @@ make
 
 保存先はゲームを実行するユーザーが書き込める必要があります。`--file-dir`で指定したフォルダは**`make install`の際だけ**必要に応じて作成されますが、`sudo`で作成すると書き込み権限に注意が必要なため、上の例では先に自分で作成しています。
 
-**セーブ・スコア・ロックの保存先を分ける場合：**
+**セーブ・スコアの保存先を分ける場合：**
 
 ```sh
 mkdir -p "$HOME/Games/Rogue/saves" "$HOME/Games/Rogue/scores"
 ./configure --savedir="$HOME/Games/Rogue/saves" \
-            --scoredir="$HOME/Games/Rogue/scores" \
-            --lockdir="$HOME/Games/Rogue/scores"
+            --scoredir="$HOME/Games/Rogue/scores"
 make clean
 make
 ```
 
-ディレクトリは `--file-dir='~/Documents'` のように指定しても構いません。先頭の `~/` は `configure` 実行時にホームディレクトリへ展開されます。`--savedir`、`--scoredir`、`--lockdir` でも同様です。保存先のディレクトリは、事前に作成するか `make install` で作成してください。
+ディレクトリは `--file-dir='~/Documents'` のように指定しても構いません。先頭の `~/` は `configure` 実行時にホームディレクトリへ展開されます。`--savedir`、`--scoredir` でも同様です。保存先のディレクトリは、事前に作成するか `make install` で作成してください。
 
-ファイル名は`./configure --savefile=NAME`、`--scorefile=NAME`、`--lockfile=NAME`で個別に指定できます。また、`make PROGRAM=NAME FILEDIR=DIR`または従来の`make PROG=NAME FILEDIR=DIR`も利用できます。両方を指定した場合は`PROG=`を優先します。`./configure --program=NAME`は設定を`config.mk`に保存しますが、`make PROGRAM=NAME`はその実行時だけ名前を変更します。設定を変更したら再ビルドしてください。
+ファイル名は`./configure --savefile=NAME`、`--scorefile=NAME`で個別に指定できます。また、`make PROGRAM=NAME FILEDIR=DIR`または従来の`make PROG=NAME FILEDIR=DIR`も利用できます。両方を指定した場合は`PROG=`を優先します。`./configure --program=NAME`は設定を`config.mk`に保存しますが、`make PROGRAM=NAME`はその実行時だけ名前を変更します。設定を変更したら再ビルドしてください。
 
 ## 6. ファイルの説明と配布
 
 | ファイル | 用途 |
 |---|---|
 | `rogue` | ビルド後のゲーム本体 |
-| `rogue.save` / `rogue.scr` / `rogue.lock` | セーブ／スコア／ロック |
+| `rogue.save` / `rogue.scr` | セーブ／スコア |
 | `configure` / `Makefile` / `Makefile.win` | ビルドとインストール |
 | `dist-src.mk` | ソース配布アーカイブの収録ファイル一覧と生成処理 |
 | `config.mk` / `config.log` | `configure`実行時に生成される設定・確認ログ |
@@ -122,7 +121,7 @@ make
 | `README.md` | GitHub・ソース配布用の概要、OS・言語別READMEと案内書へのリンク |
 | `LICENSE.txt` | ライセンス |
 
-**ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_004-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
+**ソース配布アーカイブの作成：** `make dist.src` を実行すると、ソースコード、日英README・案内書、ライセンス、Windows用ファイルを含む `rogue36_005-src.tar.gz` を作成します。ビルドや `make clean` は実行せず、セーブ・スコア・実行ファイル、設定ファイルなどは変更も収録もしません。Mac固有のメタデータも除外します。同名のアーカイブがすでにある場合は上書きせずに終了します。別名で作る場合は `make dist.src DIST_FILE=別名.tar.gz` を使用してください。
 
 ## 7. 著作権・ライセンス
 
