@@ -79,7 +79,7 @@ void do_rooms(void)
 	    rp->r_goldval = GOLDCALC;
 	    rnd_pos(rp, &rp->r_gold);
 	    if (roomin(&rp->r_gold) != rp)
-		endwin(), abort();
+		rogue_endwin(), abort();
 	}
 	draw_room(rp);
 	/*

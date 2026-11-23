@@ -303,7 +303,7 @@ void score(int amount, int flags, char monst)
 	"A total winner",
     };
     if (flags != -1)
-	endwin();
+	rogue_endwin();
     /* The original wizard prompt may wait for interactive input.  Get it
      * before acquiring the lock, so other players can still post scores. */
     signal(SIGINT, SIG_DFL);

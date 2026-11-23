@@ -76,6 +76,7 @@
 #define inroom(rp, cp) (\
     (cp)->x <= (rp)->r_pos.x + ((rp)->r_max.x - 1) && (rp)->r_pos.x <= (cp)->x \
  && (cp)->y <= (rp)->r_pos.y + ((rp)->r_max.y - 1) && (rp)->r_pos.y <= (cp)->y)
+int rogue_endwin(void);
 int rogue_init_screen(void);
 int rogue_chtype_to_char(chtype ch);
 char *rogue_strdup(const char *src);

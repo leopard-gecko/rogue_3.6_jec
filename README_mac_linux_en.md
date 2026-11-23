@@ -121,7 +121,7 @@ Individual filenames can be set with `./configure --savefile=NAME` and `--scoref
 | `README.md` | Project overview and links to platform READMEs and dungeon guides |
 | `LICENSE.txt` | License |
 
-**Creating a source archive:** Run `make dist.src` to create `rogue36_005-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
+**Creating a source archive:** Run `make dist.src` to create `rogue36_006-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
 
 ## 7. Copyright and license
 

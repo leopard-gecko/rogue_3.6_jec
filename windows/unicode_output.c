@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "jec/unicode_output.h"
+#include "rogue_windows_console.h"
 
 #define ROGUE_VT_GLYPHS 256
 struct rogue_vt_glyph {
@@ -127,7 +128,12 @@ int rogue_draw_utf8(WINDOW *win)
 
     result = wrefresh(win);
     if (result != ERR)
+    {
         rogue_vt_repaint(win);
+        /* The first redraw after a ! shell escape may reactivate
+         * PDCursesMod's underscore cursor. Restore shape once here. */
+        rogue_windows_cursor_after_redraw();
+    }
 
     /* Restore visibility even when wrefresh() fails.  We do not call
      * curs_set(0): doing so would stop PDCursesMod from returning the

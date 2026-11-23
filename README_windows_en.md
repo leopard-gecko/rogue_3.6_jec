@@ -172,7 +172,7 @@ Set filenames individually with `SAVEFILE=NAME` and `SCOREFILE=NAME`. The direct
 
 MSYS2 is only needed to build the source, not merely to launch an already-built executable.
 
-**Creating a source archive:** Run `make dist.src` to create `rogue36_005-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
+**Creating a source archive:** Run `make dist.src` to create `rogue36_006-src.tar.gz`, containing the source files, Japanese/English READMEs and guides, license, and Windows-specific files. This does not compile or run `make clean`, modify saves/scores/executables/configuration, or package build outputs or macOS metadata. An existing archive is never overwritten; use `make dist.src DIST_FILE=another-name.tar.gz` to choose a new filename.
 
 **Create a Windows binary distribution ZIP:** Install the optional `zip` tool in MSYS2 UCRT64 and run:
 
@@ -181,7 +181,7 @@ pacman -S --needed zip
 make dist.win
 ```
 
-This generates `rogue36_005_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English README and HTML guides from `windows/binary/`, plus `LICENSE.txt`. The included documents are taken from the Windows ZIP published under GitHub Releases `v004`; the source guides and READMEs are not rewritten.
+This generates `rogue36_006_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English README and HTML guides from `windows/binary/`, plus `LICENSE.txt`. The included documents are taken from the Windows ZIP published under GitHub Releases `v004`; the source guides and READMEs are not rewritten.
 
 Use `make PROGRAM=another-name dist.win` to choose a different executable name. Distribution binaries store their save and score files relative to the working directory; machine-specific paths such as `FILEDIR=saved-games` are not accepted. Existing ZIP files are never overwritten.
 

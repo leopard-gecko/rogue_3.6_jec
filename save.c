@@ -910,7 +910,7 @@ void auto_save(int sig)
 	    fclose(savef);
 	}
     }
-    endwin();
+    rogue_endwin();
     exit(1);
 }
 
@@ -1004,7 +1004,7 @@ int restore(char *file, char **envp)
         /* A damaged save can fail after the curses screen starts. Return
          * to the normal console before printing the failure message. */
         if (cw != NULL)
-            endwin();
+            rogue_endwin();
         rogue_windows_clear_score_screen();
 #endif
         printf("%s", JSTR("セーブファイルに互換性がないか、壊れています。\n", "Save file is incompatible or damaged.\n"));

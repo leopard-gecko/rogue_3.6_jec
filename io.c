@@ -9,6 +9,19 @@
 #include <stdarg.h>
 #include "rogue.h"
 
+/* Keep curses shutdown and terminal cursor restoration together.
+ * PDCursesMod's VT backend selects a blinking block when endwin() runs;
+ * Windows must restore the terminal-configured default afterwards. */
+int rogue_endwin(void)
+{
+    int result = endwin();
+#ifdef _WIN32
+    if (result != ERR)
+        rogue_windows_restore_cursor_shape();
+#endif
+    return result;
+}
+
 /*
  * Initialize the physical terminal, then create 80x24 logical windows.
  * A larger terminal remains larger, but the dungeon and status line stay
@@ -24,7 +37,7 @@ int rogue_init_screen(void)
     if (terminal_lines < ROGUE_SCREEN_LINES ||
         terminal_cols < ROGUE_SCREEN_COLS)
     {
-        endwin();
+        rogue_endwin();
         fprintf(stderr, "%s", JSTR(
             "Rogue 3.6には80列×24行以上の端末が必要です。\n",
             "Rogue 3.6 requires a terminal of at least 80 columns by 24 lines.\n"));
@@ -40,7 +53,7 @@ int rogue_init_screen(void)
         if (mw != NULL) delwin(mw);
         if (hw != NULL) delwin(hw);
         cw = mw = hw = NULL;
-        endwin();
+        rogue_endwin();
         fprintf(stderr, "%s", JSTR(
             "Rogueの画面を作成できませんでした。\n",
             "Cannot create Rogue screen windows.\n"));

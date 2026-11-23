@@ -184,7 +184,7 @@ void command(void)
 			 * curses and exit immediately.  The save routine itself
 			 * has already shown the original confirmation prompts.
 			 */
-			endwin();
+			rogue_endwin();
 			exit(0);
 		    }
 		when ' ' : ;			/* Rest command */
@@ -565,7 +565,7 @@ void shell(void)
     wclear(hw);
     wmove(hw, ROGUE_SCREEN_LINES-1, 0);
     draw(hw);
-    endwin();
+    rogue_endwin();
     in_shell = TRUE;
     fflush(stdout);
 
@@ -623,6 +623,11 @@ void shell(void)
     /* Resume curses only after Return, identically on all platforms. */
     noecho();
     crmode();
+#ifdef _WIN32
+    /* PDCursesMod may change the cursor shape when leaving the shell;
+     * its first subsequent redraw can do so again. */
+    rogue_windows_resume_cursor_from_shell();
+#endif
     in_shell = FALSE;
     clearok(cw, TRUE);
     touchwin(cw);

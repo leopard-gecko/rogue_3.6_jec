@@ -20,6 +20,80 @@ void rogue_windows_init_console(void)
     SetConsoleCP(CP_UTF8);
 }
 
+/* PDCursesMod's VT PDC_scr_close() calls PDC_curs_set(2), forcing the
+ * terminal cursor to a blinking block.  Reset the terminal's user-
+ * configured default shape only AFTER endwin() has finished.
+ *
+ * PDC_scr_close() also disables Win32 VT parsing.  Reenable it briefly
+ * so Console Host can interpret DECSCUSR, then restore the exact output
+ * mode left by curses.  ConPTY/Windows Terminal use the same path. */
+void rogue_windows_restore_cursor_shape(void)
+{
+    static const char restore[] = "\033[0 q";
+    const DWORD vt_flags = ENABLE_PROCESSED_OUTPUT |
+                           ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode, written;
+    int changed_mode = 0;
+
+    if (output == NULL || output == INVALID_HANDLE_VALUE)
+        return;
+
+    if (GetConsoleMode(output, &mode))
+    {
+        if ((mode & vt_flags) != vt_flags)
+        {
+            if (!SetConsoleMode(output, mode | vt_flags))
+                return;
+            changed_mode = 1;
+        }
+        (void)fflush(stdout);
+        (void)WriteFile(output, restore, (DWORD)(sizeof restore - 1),
+                        &written, NULL);
+        if (changed_mode)
+            (void)SetConsoleMode(output, mode);
+    }
+    else
+    {
+        /* mintty and similar PTYs expose a pipe rather than a Win32
+         * console.  Send the same reset sequence to an ANSI-like PTY,
+         * but never emit terminal escapes into an ordinary output file. */
+        const char *term = getenv("TERM");
+        if (GetFileType(output) == FILE_TYPE_PIPE && term != NULL &&
+            (strncmp(term, "xterm", 5) == 0 ||
+             strncmp(term, "screen", 6) == 0 ||
+             strncmp(term, "tmux", 4) == 0 ||
+             strncmp(term, "rxvt", 4) == 0 ||
+             strncmp(term, "cygwin", 6) == 0))
+        {
+            (void)fwrite(restore, 1, sizeof restore - 1, stdout);
+            (void)fflush(stdout);
+        }
+    }
+}
+
+/* After a shell escape, PDCursesMod can set the cursor shape again
+ * while reactivating its program screen (notably on the first refresh).
+ * The reset just after crmode()/noecho() handles immediate reentry;
+ * the one-shot reset after the next successful redraw handles a later
+ * reset_prog_mode() without sending an escape on every player move. */
+static int cursor_restore_on_next_redraw = 0;
+
+void rogue_windows_resume_cursor_from_shell(void)
+{
+    cursor_restore_on_next_redraw = 1;
+    rogue_windows_restore_cursor_shape();
+}
+
+void rogue_windows_cursor_after_redraw(void)
+{
+    if (cursor_restore_on_next_redraw)
+    {
+        cursor_restore_on_next_redraw = 0;
+        rogue_windows_restore_cursor_shape();
+    }
+}
+
 /* No universal Win32 flag identifies an Explorer double-click. Use a
  * conservative parent/console classifier; never resize an interactive shell.
  * Unknown parents may be accepted only for a sole console client (a common

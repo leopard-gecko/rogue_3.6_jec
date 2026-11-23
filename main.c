@@ -297,7 +297,7 @@ void fatal(const char *s)
     move(ROGUE_SCREEN_LINES-2, 0);
     printw("%s", s);
     draw(stdscr);
-    endwin();
+    rogue_endwin();
     exit(0);
 }
 
@@ -337,7 +337,7 @@ void tstp(int sig)
 #else
     refresh();
 #endif
-    endwin();
+    rogue_endwin();
     fflush(stdout);
     kill(0, SIGTSTP);
     signal(SIGTSTP, tstp);
