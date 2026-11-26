@@ -1,7 +1,7 @@
 # Shared source-only archive target for Unix and MSYS2 Windows builds.
 # Everything needed for packaging is kept here: the file list and the recipe.
 # Packaging never compiles, cleans, or changes the working source tree.
-DIST_NAME ?= rogue36_006
+DIST_NAME ?= rogue36_007
 DIST_FILE ?= $(DIST_NAME)-src.tar.gz
 
 # Explicit allow-list: no objects, executables, saved games, configuration,

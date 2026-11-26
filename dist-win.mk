@@ -1,7 +1,7 @@
 # Windows binary distribution (MSYS2 UCRT64): retain the established release layout.
 # The README and HTML guides are the original end-user documents from the
 # published GitHub Release; source HTML and platform READMEs stay untouched.
-DIST_WIN_NAME ?= rogue36_006_windows
+DIST_WIN_NAME ?= rogue36_007_windows
 DIST_WIN_FILE ?= $(DIST_WIN_NAME).zip
 
 # make dist.win uses rogue36.exe by default even though plain make builds
