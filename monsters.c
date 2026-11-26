@@ -211,7 +211,7 @@ struct linked_list * wake_monster(int y, int x)
 	{
 	    if (off(*tp, ISFOUND) && !save(VS_MAGIC))
 	    {
-		msg(JSTR("褐色の大あご虫の視線で混乱した。", "The umber hulk's gaze has confused you."));
+		msg(JSTR("褐色の大あご虫ににらまれ、頭が混乱してしまった。", "The umber hulk's gaze has confused you."));
 		if (on(player, ISHUH))
 		    lengthen(unconfuse, rnd(20)+HUHDURATION);
 		else

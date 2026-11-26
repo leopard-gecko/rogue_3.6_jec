@@ -334,7 +334,7 @@ struct trap * trap_at(int y, int x)
 	if (tp->tr_pos.y == y && tp->tr_pos.x == x)
 	    break;
     if (tp == ep)
-	if (wizard) msg(JSTR("%d,%d の罠が配列にない", "Trap at %d,%d not in array"), y, x);
+	if (wizard) msg(JSTR("%d,%d のわなが配列にない", "Trap at %d,%d not in array"), y, x);
     return tp;
 }
 

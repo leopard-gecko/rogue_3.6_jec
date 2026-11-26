@@ -28,7 +28,7 @@ void read_scroll(void)
 	if (!terse)
 	    msg(JSTR("それには読めるところはない。", "There is nothing on it to read"));
 	else
-	    msg(JSTR("読むものがない。", "Nothing to read"));
+	    msg(JSTR("それは巻き物ではない。", "Nothing to read"));
 	return;
     }
     msg(JSTR("巻き物は読むと消えてしまった。", "As you read the scroll, it vanishes."));
@@ -282,7 +282,7 @@ map_tile:
 	    genocide();
 	    s_know[S_GENOCIDE] = TRUE;
 	otherwise:
-	    msg(JSTR("なんてややこしい巻物だ！", "What a puzzling scroll!"));
+	    msg(JSTR("なんてややこしい巻き物だ！", "What a puzzling scroll!"));
 	    return;
     }
     look(TRUE);	/* put the result of the scroll on the screen */

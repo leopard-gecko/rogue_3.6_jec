@@ -123,7 +123,7 @@ void nohaste(int arg)
 {
     (void) arg;
     player.t_flags &= ~ISHASTE;
-    msg(JSTR("素早くなる薬の効き目がなくなった。", "You feel yourself slowing down."));
+    msg(JSTR("素早くなる水薬の効き目がなくなった。", "You feel yourself slowing down."));
 }
 
 /*

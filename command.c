@@ -499,7 +499,7 @@ void identify(void)
 	when ARMOR: str = JSTR("よろい", "armor");
 	when AMULET: str = JSTR("イェンダーの魔除け", "The Amulet of Yendor");
 	when RING: str = JSTR("指輪", "ring");
-	when STICK: str = JSTR("つえと魔法の棒", "wand or staff");
+	when STICK: str = JSTR("つえか魔法の棒", "wand or staff");
 	otherwise: str = JSTR("その文字は使われていない", "unknown character");
     }
     msg(JSTR("'%s'：%s", "'%s' : %s"), unctrl(ch), str);
@@ -678,7 +678,7 @@ void call(void)
     }
     if (know[obj->o_which])
     {
-	msg(JSTR("それはすでに鑑別されている。", "That has already been identified"));
+	msg(JSTR("それはすでに識別されている。", "That has already been identified"));
 	return;
     }
     msg(JSTR("現在の呼び名は「%s」。",

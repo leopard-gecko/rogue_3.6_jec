@@ -268,7 +268,7 @@ void do_zap(bool gotdir)
 	    bounced = FALSE;
 	    used = FALSE;
 	    if (obj->o_which == WS_ELECT)
-		name = JSTR("電撃", "bolt");
+		name = JSTR("いなずま", "bolt");
 	    else if (obj->o_which == WS_FIRE)
 		name = JSTR("炎", "flame");
 	    else
