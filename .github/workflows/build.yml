@@ -91,9 +91,18 @@ jobs:
       - name: Validate packaged ZIP, DLL dependencies and language/score behavior
         run: sh windows/check-dist-win.sh rogue36_007_windows.zip
 
+      # upload-artifact already wraps artifacts in a ZIP when downloaded.
+      # Unpack the release ZIP first so its Rogue 3.6/ directory is the
+      # artifact root; the original release ZIP remains available unchanged.
+      - name: Prepare single-extraction Windows artifact
+        run: |
+          mkdir -p dist-artifact
+          unzip -q rogue36_007_windows.zip -d dist-artifact
+          test -s 'dist-artifact/Rogue 3.6/rogue36.exe'
+
       - uses: actions/upload-artifact@v6
         with:
           name: rogue36-windows-ucrt64
-          path: rogue36_007_windows.zip
+          path: dist-artifact/
           if-no-files-found: error
 
