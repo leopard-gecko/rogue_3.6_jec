@@ -71,6 +71,8 @@ DIST_SRC_FILES := \
     windows/binary/README_en.txt \
     windows/binary/rogue_ja.html \
     windows/binary/rogue_en.html \
+    windows/guide_windows_txt.sed \
+    windows/check-dist-win.sh \
     windows/rogue-icon.rc \
     windows/rogue.ico \
     windows/rogue_windows.c \

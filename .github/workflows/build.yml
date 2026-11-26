@@ -71,17 +71,29 @@ jobs:
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-binutils
             mingw-w64-ucrt-x86_64-pdcurses
+            zip
+            unzip
+            diffutils
+
+      - name: Verify static PDCurses VT library
+        run: test -s /ucrt64/lib/libpdcurses_vt.a
 
       - name: Build
         run: |
           make PROGRAM=rogue36
-          mkdir -p dist
-          cp rogue36.exe dist/
-          objdump -p dist/rogue36.exe | grep "DLL Name:" || true
+          test -s rogue36.exe
+
+      - name: Create Windows distribution ZIP
+        run: |
+          make dist.win
+          test -s rogue36_007_windows.zip
+
+      - name: Validate packaged ZIP, DLL dependencies and language/score behavior
+        run: sh windows/check-dist-win.sh rogue36_007_windows.zip
 
       - uses: actions/upload-artifact@v6
         with:
-          name: rogue36-windows-x64
-          path: dist/rogue36.exe
+          name: rogue36-windows-ucrt64
+          path: rogue36_007_windows.zip
           if-no-files-found: error
 

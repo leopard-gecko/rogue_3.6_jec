@@ -161,6 +161,7 @@ Set filenames individually with `SAVEFILE=NAME` and `SCOREFILE=NAME`. The direct
 | `dist-src.mk` | Source distribution file list and archive creation |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows executable icon |
 | `windows/windows-saved-games.ps1` | Locate the Windows Saved Games folder and create its `Rogue/3.6` subfolder |
+| `windows/guide_windows_txt.sed` | Adapt TXT guide command examples for the Windows distribution ZIP |
 | `*.c` / `*.h` | Core game source files in the top-level directory |
 | `jec/` | JEC-specific shared modules (language selection, Unicode text handling and screen helpers) |
 | `windows/` | Windows-specific source files and icon resources |
@@ -181,7 +182,7 @@ pacman -S --needed zip
 make dist.win
 ```
 
-This generates `rogue36_007_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English README and HTML guides from `windows/binary/`, plus `LICENSE.txt`. The included documents are taken from the Windows ZIP published under GitHub Releases `v004`; the source guides and READMEs are not rewritten.
+This generates `rogue36_007_windows.zip`. An ordinary `make` creates `rogue.exe`, whereas `make dist.win` builds `rogue36.exe` for redistribution and packages it under `Rogue 3.6/` with the Japanese/English READMEs and HTML/TXT guides, plus `LICENSE.txt`. The included READMEs and HTML guides are based on the Windows ZIP published under GitHub Releases `v004`; the TXT command examples are adapted for Windows during packaging. The source guides and READMEs are not rewritten.
 
 Use `make PROGRAM=another-name dist.win` to choose a different executable name. Distribution binaries store their save and score files relative to the working directory; machine-specific paths such as `FILEDIR=saved-games` are not accepted. Existing ZIP files are never overwritten.
 

@@ -1,6 +1,7 @@
 # Windows binary distribution (MSYS2 UCRT64): retain the established release layout.
 # The README and HTML guides are the original end-user documents from the
-# published GitHub Release; source HTML and platform READMEs stay untouched.
+# published GitHub Release; TXT guides are adapted on the fly.
+# Source guides and platform READMEs stay untouched.
 DIST_WIN_NAME ?= rogue36_007_windows
 DIST_WIN_FILE ?= $(DIST_WIN_NAME).zip
 
@@ -49,6 +50,14 @@ dist.win:
 			echo "dist.win: missing release document: $$guide" >&2; exit 1; \
 		fi; \
 	done; \
+	if [ ! -f windows/guide_windows_txt.sed ] || [ -L windows/guide_windows_txt.sed ]; then \
+		echo 'dist.win: missing TXT conversion rules' >&2; exit 1; \
+	fi; \
+	for guide in rogue_ja.txt rogue_en.txt; do \
+		if [ ! -f "$$guide" ] || [ -L "$$guide" ]; then \
+			echo "dist.win: missing source TXT guide: $$guide" >&2; exit 1; \
+		fi; \
+	done; \
 	if [ ! -f LICENSE.txt ] || [ -L LICENSE.txt ]; then \
 		echo 'dist.win: LICENSE.txt is missing or a symbolic link' >&2; exit 1; \
 	fi; \
@@ -73,6 +82,13 @@ dist.win:
 		else \
 			sed "s/rogue36/$$program/g" "windows/binary/$$guide" > "$$stage/$$guide"; \
 		fi; \
+	done; \
+	for guide in rogue_ja.txt rogue_en.txt; do \
+		sed -f windows/guide_windows_txt.sed "$$guide" | \
+			sed "s/rogue36/$$program/g" > "$$stage/$$guide"; \
+		test -s "$$stage/$$guide" || { \
+			echo "dist.win: empty TXT guide: $$guide" >&2; exit 1; \
+		}; \
 	done; \
 	(cd "$$stage_tmp" && zip -q -r "$$output_tmp/archive.zip" 'Rogue 3.6'); \
 	ln "$$output_tmp/archive.zip" "$$output"; \

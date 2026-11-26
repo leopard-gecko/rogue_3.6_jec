@@ -161,6 +161,7 @@ make SAVEDIR=rogue-data/saves \
 | `dist-src.mk` | ソース配布アーカイブの収録ファイル一覧と生成処理 |
 | `windows/rogue.ico` / `windows/rogue-icon.rc` | Windows用アイコン |
 | `windows/windows-saved-games.ps1` | Windowsの「保存したゲーム」の場所の取得・3.6用フォルダ作成 |
+| `windows/guide_windows_txt.sed` | Windows配布ZIP用にTXT案内書のコマンド例を調整するルール |
 | `*.c` / `*.h` | ルートディレクトリのゲーム本体ソースコード |
 | `jec/` | JEC独自の共通機能（言語切り替え、Unicode文字列処理、画面表示補助など） |
 | `windows/` | Windows専用のソースコードとアイコン関連ファイル |
@@ -181,7 +182,7 @@ pacman -S --needed zip
 make dist.win
 ```
 
-`rogue36_007_windows.zip`が作成されます。通常の`make`は`rogue.exe`を作成しますが、`make dist.win`は配布用に`rogue36.exe`をビルドし、`windows/binary/`に収録された日英READMEと日英HTML案内書、`LICENSE.txt`とともに`Rogue 3.6/`フォルダーへまとめます。配布文書はGitHub Releasesの`v004`にあるWindows版ZIPを基準にしています。ソース版の案内書とREADMEは書き換えません。
+`rogue36_007_windows.zip`が作成されます。通常の`make`は`rogue.exe`を作成しますが、`make dist.win`は配布用に`rogue36.exe`をビルドし、`windows/binary/`に収録された日英READMEと日英HTML・TXT案内書、`LICENSE.txt`とともに`Rogue 3.6/`フォルダーへまとめます。配布文書はGitHub Releasesの`v004`にあるWindows版ZIPを基準にしています。TXT案内書のコマンド例はWindows用に調整し、ソース版の案内書とREADMEは書き換えません。
 
 実行ファイル名を変更する場合は`make PROGRAM=別名 dist.win`を指定できます。配布用EXEはセーブ・スコアを起動時の作業フォルダーに保存します。`FILEDIR=saved-games`など特定のPCに固定された保存先は指定できません。同名ZIPが存在する場合は上書きせず終了します。
 

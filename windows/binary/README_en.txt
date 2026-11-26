@@ -22,8 +22,10 @@ Enjoy Rogue where it all began.
 [Included Files]
 
   rogue36.exe       Game executable
-  rogue_ja.html     Guide to the Dungeons of Doom (Japanese)
-  rogue_en.html     Guide to the Dungeons of Doom (English)
+  rogue_ja.html     Guide to the Dungeons of Doom (Japanese HTML)
+  rogue_ja.txt      Guide to the Dungeons of Doom (Japanese TXT)
+  rogue_en.html     Guide to the Dungeons of Doom (English HTML)
+  rogue_en.txt      Guide to the Dungeons of Doom (English TXT)
   README_ja.txt     Japanese README
   README_en.txt     This file
   LICENSE.txt       Copyright and license information
@@ -141,7 +143,8 @@ Windows user environment variables:
 
 For instructions, screen information, commands, items, and options,
 open the included rogue_en.html ("A Guide to the Dungeons of Doom")
-in a web browser. No Internet connection is required.
+in a web browser, or read the TXT edition (rogue_en.txt).
+Neither version requires an Internet connection.
 
 The latest guide is also available on the following website:
 

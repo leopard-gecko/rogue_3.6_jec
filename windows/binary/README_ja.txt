@@ -20,8 +20,10 @@ Rogue 3.6は現在入手できる最古のRogueのバージョンであり、Rog
 【同梱ファイル】
 
   rogue36.exe       ゲーム本体
-  rogue_ja.html     【運命の洞窟】への案内書（日本語版）
-  rogue_en.html     【運命の洞窟】への案内書（英語版）
+  rogue_ja.html     【運命の洞窟】への案内書（日本語版HTML）
+  rogue_ja.txt      【運命の洞窟】への案内書（日本語版TXT）
+  rogue_en.html     【運命の洞窟】への案内書（英語版HTML）
+  rogue_en.txt      【運命の洞窟】への案内書（英語版TXT）
   README_ja.txt     このファイル
   README_en.txt     英語のREADME
   LICENSE.txt       著作権・ライセンス
@@ -142,7 +144,8 @@ ROGUEOPTSを登録してください。
 
 操作方法、画面の見方、コマンド、道具、オプションなどについては、
 同梱のrogue_ja.html（「【運命の洞窟】への案内書」日本語版）を
-Webブラウザーで開いてください。インターネット接続は不要です。
+Webブラウザーで開いてください。TXT版（rogue_ja.txt）もあります。
+どちらもインターネット接続は不要です。
 
 最新版の案内書は、次のWebサイトでもご覧いただけます。
 
